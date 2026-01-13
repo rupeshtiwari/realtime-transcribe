@@ -1,0 +1,18 @@
+{
+  "name": "realtime-transcription-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser WebRTC realtime transcription (mic -> live transcript).",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
+
