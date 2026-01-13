@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Realtime Transcription (WebRTC)</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <div class="header__title">
+        <div class="header__kicker">Realtime</div>
+        <div class="header__headline">Live mic → live transcript</div>
+      </div>
+      <div class="header__actions">
+        <button id="startBtn" class="btn btn--primary">Start</button>
+        <button id="stopBtn" class="btn" disabled>Stop</button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="pane">
+        <h2 class="pane__title">Live Transcript</h2>
+        <p class="pane__subtitle">Edits are local; incoming text keeps appending.</p>
+        <textarea
+          id="transcript"
+          class="textarea"
+          placeholder="Press Start and speak…"
+          spellcheck="true"
+        ></textarea>
+        <div class="status">
+          <span class="status__dot" id="statusDot"></span>
+          <span id="statusText">Idle</span>
+        </div>
+      </section>
+
+      <section class="pane pane--muted">
+        <h2 class="pane__title">Suggested Reply (later)</h2>
+        <div class="placeholder">
+          This will show 1 best + 2 alternates once we wire Stream 2.
+        </div>
+      </section>
+
+      <section class="pane pane--muted">
+        <h2 class="pane__title">Next Question (later)</h2>
+        <div class="placeholder">
+          This will show 1 follow-up question once we wire Stream 2.
+        </div>
+      </section>
+    </main>
+
+    <details class="debug">
+      <summary>Debug</summary>
+      <pre id="debugLog" class="debug__log"></pre>
+    </details>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
+
