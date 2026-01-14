@@ -1484,7 +1484,7 @@ async function autoSelectMaterials(role, coachingType, agenda) {
   }
 }
 
-// Render selected materials
+// Render selected materials (from folder or library)
 function renderSelectedMaterials() {
   const container = document.getElementById("selectedMaterials");
   if (!container) return;
@@ -1496,9 +1496,20 @@ function renderSelectedMaterials() {
   
   let html = "";
   selectedMaterials.forEach(materialId => {
-    const material = materialsLibrary.find(m => (m.id || m.name) === materialId);
-    if (material) {
-      html += `<span class="material-tag">${escapeHtml(material.name)}</span>`;
+    // Check if it's a path (from folder) or ID (from library)
+    if (materialId.includes("/") || materialId.includes("\\")) {
+      // It's a file path from folder
+      const fileName = materialId.split(/[/\\]/).pop();
+      html += `<span class="material-tag" title="${escapeHtml(materialId)}">${escapeHtml(fileName)}</span>`;
+    } else {
+      // It's from local library
+      const material = materialsLibrary.find(m => (m.id || m.name) === materialId);
+      if (material) {
+        html += `<span class="material-tag">${escapeHtml(material.name)}</span>`;
+      } else {
+        // Might be a filename from folder matching
+        html += `<span class="material-tag">${escapeHtml(materialId)}</span>`;
+      }
     }
   });
   
