@@ -1,0 +1,29 @@
+{
+  "name": "Coach Copilot - Realtime Transcription",
+  "short_name": "Coach Copilot",
+  "description": "Real-time transcription and AI coaching assistant",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2d62ff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Start New Session",
+      "short_name": "New Session",
+      "description": "Start a new coaching session",
+      "url": "/?action=new",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    }
+  ]
+}

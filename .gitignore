@@ -1,7 +1,52 @@
+# Dependencies
 node_modules/
+package-lock.json
+
+# Environment variables
 .env
-.DS_Store
+.env.local
+.env.*.local
+
+# Build outputs
+dist/
+build/
+public/build/
+
+# Logs
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Session data (user data, don't commit)
+data/sessions/*.txt
+data/sessions/*.pages
+data/sessions/.DS_Store
+
+# Keep sessions folder structure
+!data/sessions/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Google OAuth tokens (sensitive)
+*.token
+google-credentials.json

@@ -1,0 +1,29 @@
+Term,Full Form,Explanation
+DAG,Directed Acyclic Graph,"In Airflow, a DAG is a workflow where each node is a task and edges define dependencies. It ensures no circular dependencies. Used to model data pipelines."
+CDC,Change Data Capture,"Technique to capture changes (inserts/updates/deletes) in source databases and replicate them downstream, e.g., from MySQL to Kafka."
+SCD,Slowly Changing Dimensions,"A data warehousing concept used to manage historical data in dimension tables. Type 1: overwrite, Type 2: versioning rows."
+DBT,Data Build Tool,SQL-based transformation tool used in ELT pipelines to create models in data warehouses. Works with version control and modular SQL.
+ELT,Extract Load Transform,"Pipeline where data is extracted from source, loaded into warehouse, then transformed. Enables using powerful warehouse engines like Snowflake/BigQuery."
+Sensor,Airflow concept,"Sensors wait for a condition to be met (e.g., file in S3). S3Sensor waits for file presence. ExternalTaskSensor waits for another DAG/task to complete."
+Parametrization,Dynamic configuration in DAGs,"Technique to make DAGs reusable by injecting variables (e.g., dates). Done using Airflow's `Variable.get()` or `dag_run.conf`."
+Great Expectations,Open-source validation framework,"Python library to assert data quality using test-like checks (e.g., null % < 5, unique key checks). Integrates with Airflow, Spark."
+PyDantic,Python library for data validation,Used to define and validate structured data using Python classes. Common in API ingestion.
+Apache Iceberg,Open table format for data lakes,"Supports ACID, schema evolution, partition evolution, and time-travel. Works well with Spark, Trino, Flink."
+Delta Lake,Databricks table format,"ACID transactions, time travel, schema evolution. Open source, works with Spark. Backed by Databricks."
+Schema on Write,Schema enforced when writing data,Opposite of 'schema on read'. Ensures quality before storing. Used in Delta Lake/Iceberg.
+BigQuery,Serverless warehouse by Google,"Auto-scalable, fast queries, per-query cost. Great for large analytical queries, less for streaming."
+Redshift,Amazon's data warehouse,"Cluster-based, reserved capacity, tight integration with AWS, cheaper for stable workloads."
+Snowflake,Cloud-native data warehouse,Decouples storage/compute. Pay-per-second. Easy scaling. Strong support for semi-structured data.
+Airflow,Workflow orchestrator by Apache,Defines DAGs in Python to schedule/extract/transform/load tasks. Scalable with worker-executor model.
+Airflow Worker,Task executor,Airflow runs tasks via workers. More workers = more concurrency.
+Parquet,Columnar file format,"Efficient for queries that read few columns. Supports compression. Alternatives: ORC, Avro."
+Checkpointing,Streaming recovery mechanism,"Save progress in jobs (e.g., Spark Streaming) to restart from last good state."
+Bad Record Path,Error handling path,"In Spark, invalid/corrupted records can be saved here for debugging instead of failing the job."
+Idempotent Writes,Safe to re-run without duplicating effects,Used in DAGs/ETL to avoid reloading same data multiple times.
+Overwrite with Partition Filter,Write mode in Spark/dbt,"Overwrite only a specific partition, not whole table. Used for incremental loads."
+Watermarking,Event-time strategy in streaming,Used in Flink/Spark to handle late data and decide when to close windows.
+Kafka + Spark Checkpoint,Reliable streaming pipeline,Kafka stores durable events; Spark checkpointing ensures retries and fault tolerance.
+Hive Metastore,Metadata service,"Stores schema/table info for Hive, Presto, Iceberg, etc."
+Manifest & Versioning,Schema change tracking in Iceberg/Delta,"Tracks file versions, schema changes, time-travel. Enables rollback and debugging."
+Dremio,Data lakehouse query engine,Enables SQL analytics directly on S3/HDFS using Iceberg. Used for interactive queries.
+Databricks,Data engineering platform,"Built on Apache Spark. Offers Delta Lake, MLflow. Used for notebooks, pipelines, ML."

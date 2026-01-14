@@ -1,50 +1,181 @@
 <!doctype html>
 <html lang="en">
+
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Realtime Transcription (WebRTC)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Real-time transcription and AI coaching assistant for mentoring sessions" />
+    <meta name="theme-color" content="#2d62ff" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Coach Copilot" />
+    <title>Coach Copilot - Realtime Transcription</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
+
   <body>
+    <!-- Session Setup Modal -->
+    <div id="sessionModal" class="modal">
+      <div class="modal__content">
+        <h2>Start New Coaching Session</h2>
+        <form id="sessionForm">
+          <div class="form-group">
+            <label for="emailPaste">📧 Paste Booking Email (Optional - Auto-fills form)</label>
+            <textarea id="emailPaste" rows="6" placeholder="Paste the booking confirmation email here..."></textarea>
+            <button type="button" id="parseEmailBtn" class="btn btn--small" style="margin-top: 8px;">Parse
+              Email</button>
+          </div>
+          <div class="form-group">
+            <label for="candidateName">Candidate Name</label>
+            <input type="text" id="candidateName" required placeholder="e.g., Jane Doe" />
+          </div>
+          <div class="form-group">
+            <label for="candidateRole">Candidate Role/Position</label>
+            <input type="text" id="candidateRole" required placeholder="e.g., Senior Software Engineer" />
+          </div>
+          <div class="form-group">
+            <label for="coachingType">Interview/Coaching Type</label>
+            <select id="coachingType" required>
+              <option value="">Select type...</option>
+              <option value="system-design">System Design Interview</option>
+              <option value="behavioral">Behavioral Interview</option>
+              <option value="technical">Technical Interview (Coding)</option>
+              <option value="leadership">Leadership Interview</option>
+              <option value="communication">Communication Skills</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="coachingAgenda">Coaching Agenda (Optional)</label>
+            <textarea id="coachingAgenda" rows="4"
+              placeholder="Enter coaching agenda, topics to cover, frameworks to use..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="contextFiles">Selected Materials (Auto-selected from your library when parsing email)</label>
+            <div id="selectedMaterials" class="selected-materials"></div>
+            <small class="form-hint">Materials are auto-selected based on role, company, and interview type</small>
+          </div>
+          <details class="materials-library" style="margin-top: 16px;">
+            <summary class="materials-library__summary">📚 Manage Materials Library</summary>
+            <div class="materials-library__content">
+              <div class="form-group">
+                <label for="materialsUpload">Upload Materials (PDF, TXT, MD, DOC)</label>
+                <input type="file" id="materialsUpload" multiple accept=".pdf,.txt,.doc,.docx,.md" />
+                <small class="form-hint">Upload once, use for all sessions. Materials are auto-selected based on
+                  keywords.</small>
+              </div>
+              <div id="materialsLibrary" class="materials-list"></div>
+            </div>
+          </details>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="candidateImage">Candidate Image (Optional)</label>
+              <input type="file" id="candidateImage" accept="image/*" />
+            </div>
+            <div class="form-group">
+              <label for="mentorImage">Your Image (Optional)</label>
+              <input type="file" id="mentorImage" accept="image/*" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="sessionName">Session Name (Auto-generated, can edit)</label>
+            <input type="text" id="sessionName" placeholder="Will be auto-generated from above fields" />
+          </div>
+          <div class="modal__actions">
+            <button type="submit" class="btn btn--primary">Start Session</button>
+            <button type="button" id="cancelSessionBtn" class="btn">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <header class="header">
       <div class="header__title">
-        <div class="header__kicker">Realtime</div>
-        <div class="header__headline">Live mic → live transcript</div>
+        <div class="header__kicker">Coach Copilot</div>
+        <div class="header__headline">
+          <span id="sessionInfo">No active session</span>
+        </div>
       </div>
+      <nav class="header__nav">
+        <a href="/help.html" class="header__nav-link">📖 Help</a>
+        <a href="/sessions.html" class="header__nav-link">📚 Sessions</a>
+      </nav>
       <div class="header__actions">
-        <button id="startBtn" class="btn btn--primary">Start</button>
-        <button id="stopBtn" class="btn" disabled>Stop</button>
+        <button id="saveToDriveBtn" class="btn btn--small" disabled>📄 Save to Drive</button>
+        <button id="exportSessionBtn" class="btn btn--small" disabled>💾 Export</button>
+        <button id="importSessionBtn" class="btn btn--small">📥 Import</button>
+        <button id="startBtn" class="btn btn--primary">Start Session</button>
+        <button id="stopBtn" class="btn" disabled>End Session</button>
       </div>
     </header>
 
+    <div class="quick-start"
+      style="margin: 14px; padding: 12px; background: #f0f4ff; border-radius: 8px; border-left: 4px solid #2d62ff;">
+      <p style="margin: 0; font-size: 14px; color: #0b1220;">
+        <strong>Quick Start:</strong> Click "Start Session" → Fill form → Share tab audio → Start coaching!
+        <a href="/help.html" style="color: #2d62ff; text-decoration: underline; margin-left: 8px;">📖 Full Help
+          Guide</a>
+      </p>
+    </div>
+    <div class="audio-monitor" style="display: none;">
+      <audio id="audioMonitor" controls muted style="width: 100%; margin-top: 8px;"></audio>
+      <p class="audio-monitor__label">Audio monitor (hidden to prevent echo)</p>
+    </div>
+
     <main class="grid">
-      <section class="pane">
-        <h2 class="pane__title">Live Transcript</h2>
-        <p class="pane__subtitle">Edits are local; incoming text keeps appending.</p>
-        <textarea
-          id="transcript"
-          class="textarea"
-          placeholder="Press Start and speak…"
-          spellcheck="true"
-        ></textarea>
+      <section class="pane pane--transcript">
+        <div class="pane__header">
+          <h2 class="pane__title">Live Transcript</h2>
+          <div style="display: flex; gap: 8px;">
+            <button id="toggleSpeakerBtn" class="btn btn--small" title="Click when you (coach) are speaking">🎤 I'm
+              Speaking</button>
+            <button id="getSuggestionsBtn" class="btn btn--small" disabled>Get Suggestions</button>
+          </div>
+        </div>
+        <div id="transcriptChat" class="transcript-chat">
+          <div class="transcript-chat__placeholder">Transcript will appear here as audio is captured...</div>
+        </div>
         <div class="status">
           <span class="status__dot" id="statusDot"></span>
           <span id="statusText">Idle</span>
         </div>
       </section>
 
-      <section class="pane pane--muted">
-        <h2 class="pane__title">Suggested Reply (later)</h2>
-        <div class="placeholder">
-          This will show 1 best + 2 alternates once we wire Stream 2.
+      <section class="pane pane--analysis">
+        <h2 class="pane__title">Coach Analysis (Works Offline)</h2>
+        <div class="analysis-buttons">
+          <button id="followupBtn" class="btn btn--analysis" disabled>Follow-up Questions</button>
+          <button id="revisedStoryBtn" class="btn btn--analysis" disabled>Revised Story</button>
+          <button id="feedbackSummaryBtn" class="btn btn--analysis" disabled>Feedback Summary</button>
+          <button id="interviewPrepBtn" class="btn btn--analysis" disabled>Interview Prep</button>
+          <button id="conversationAnalysisBtn" class="btn btn--analysis" disabled>Full Analysis</button>
+        </div>
+        <div id="analysisResults" class="analysis-results">
+          <div class="analysis-results__placeholder">
+            Select an analysis option above. All options work offline (after disconnect) as long as you have transcript
+            text.
+          </div>
         </div>
       </section>
 
-      <section class="pane pane--muted">
-        <h2 class="pane__title">Next Question (later)</h2>
-        <div class="placeholder">
-          This will show 1 follow-up question once we wire Stream 2.
+      <section class="pane pane--assistant">
+        <h2 class="pane__title">🤖 Coach Assistant</h2>
+        <div class="assistant-chat">
+          <div id="assistantMessages" class="assistant-chat__messages">
+            <div class="assistant-message assistant-message--system">
+              <div class="assistant-message__bubble">
+                Ask me anything about the conversation, candidate, or coaching strategies. I work offline too!
+              </div>
+            </div>
+          </div>
+          <div class="assistant-chat__input">
+            <input type="text" id="assistantInput" class="assistant-chat__input-field"
+              placeholder="Ask a question..." />
+            <button id="assistantSendBtn" class="assistant-chat__send-btn" disabled>Send</button>
+          </div>
         </div>
       </section>
     </main>
@@ -55,6 +186,20 @@
     </details>
 
     <script src="/app.js"></script>
+    <script>
+      // Register Service Worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered:', registration);
+            })
+            .catch((error) => {
+              console.log('SW registration failed:', error);
+            });
+        });
+      }
+    </script>
   </body>
-</html>
 
+</html>

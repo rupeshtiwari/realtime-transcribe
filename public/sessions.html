@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Session Library - Coach Copilot" />
+    <meta name="theme-color" content="#2d62ff" />
+    <title>Sessions - Coach Copilot</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+
+  <body>
+    <header class="header">
+      <div class="header__title">
+        <div class="header__kicker">Coach Copilot</div>
+        <div class="header__headline">Session Library</div>
+      </div>
+      <nav class="header__nav">
+        <a href="/" class="header__nav-link">🏠 Home</a>
+        <a href="/help.html" class="header__nav-link">📖 Help</a>
+      </nav>
+      <div class="header__actions">
+        <button id="importOldSessionsBtn" class="btn btn--primary">📥 Import Old Sessions</button>
+      </div>
+    </header>
+
+    <main class="sessions-container">
+      <div class="sessions-content">
+        <div class="sessions-header">
+          <h1 class="sessions-title">📚 Your Coaching Sessions</h1>
+          <div class="sessions-stats" id="sessionsStats"></div>
+        </div>
+
+        <div class="sessions-filters">
+          <input type="text" id="searchInput" class="sessions-search" placeholder="🔍 Search sessions by name, candidate, role..." />
+          <select id="filterType" class="sessions-filter">
+            <option value="">All Types</option>
+            <option value="System Design">System Design</option>
+            <option value="Behavioral">Behavioral</option>
+            <option value="Technical">Technical</option>
+            <option value="Mock Interview">Mock Interview</option>
+            <option value="Resume Review">Resume Review</option>
+          </select>
+        </div>
+
+        <div id="sessionsList" class="sessions-list">
+          <div class="sessions-loading">Loading sessions...</div>
+        </div>
+
+        <div id="noSessions" class="sessions-empty" style="display: none;">
+          <p>No sessions found. Start a new session to begin!</p>
+          <a href="/" class="btn btn--primary">Start New Session</a>
+        </div>
+      </div>
+    </main>
+
+    <!-- Session Detail Modal -->
+    <div id="sessionModal" class="modal" style="display: none;">
+      <div class="modal__content modal__content--large">
+        <div class="modal__header">
+          <h2 id="modalSessionName" class="modal__title">Session Details</h2>
+          <button class="modal__close" onclick="closeSessionModal()">×</button>
+        </div>
+        <div class="modal__body" id="modalSessionBody">
+          <!-- Session details will be loaded here -->
+        </div>
+        <div class="modal__actions">
+          <button id="loadSessionBtn" class="btn btn--primary">Load Session</button>
+          <button id="exportSessionBtn" class="btn">💾 Export</button>
+          <button id="deleteSessionBtn" class="btn btn--danger">🗑️ Delete</button>
+          <button class="btn" onclick="closeSessionModal()">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/sessions.js"></script>
+    <script>
+      // Register Service Worker for PWA
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered:', registration);
+            })
+            .catch((error) => {
+              console.log('SW registration failed:', error);
+            });
+        });
+      }
+    </script>
+  </body>
+
+</html>

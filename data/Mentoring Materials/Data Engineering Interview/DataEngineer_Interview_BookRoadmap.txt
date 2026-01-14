@@ -1,0 +1,63 @@
+CAMPERSO Candidate Learning Path - Focused Book Roadmap
+
+-------------------------------------------------------------
+Fundamentals of Data Engineering (Joe Reis, Matt Housley)
+-------------------------------------------------------------
+What to Read:
+- Pipelines & Orchestration: lifecycle of pipelines, modern orchestration tools (Airflow, Dagster).
+- Storage & Compute: OLTP vs OLAP, lakehouse tradeoffs.
+- Serving Data: BI, ML, latency considerations.
+Why It Helps: Builds the practical vocabulary and mental model to explain end-to-end tradeoffs in interviews.
+
+-------------------------------------------------------------
+Designing Data-Intensive Applications (Martin Kleppmann)
+-------------------------------------------------------------
+What to Read:
+- Data Models & Query Languages (Ch. 2): relational vs document vs graph.
+- Storage & Retrieval (Ch. 3): indexing (B-Trees, LSM-trees).
+- Encoding & Evolution (Ch. 4): schema evolution with Avro/Protobuf.
+- Batch Processing (Ch. 10) + Stream Processing (Ch. 11): frameworks, guarantees, idempotency.
+Why It Helps: The theory bible. Gives you tradeoff language (SQL vs NoSQL, batch vs streaming) FAANG expects.
+
+-------------------------------------------------------------
+Streaming Systems (Tyler Akidau)
+-------------------------------------------------------------
+What to Read:
+- Windowing & Time Semantics: event time vs processing time, watermarks.
+- Exactly-Once Processing: checkpoints, idempotent sinks.
+- Stateful Streaming: scaling Spark/Flink jobs.
+Why It Helps: Prepares you for late data, ordering, retries—core in stream processing interviews.
+
+-------------------------------------------------------------
+The Data Warehouse Toolkit (Ralph Kimball)
+-------------------------------------------------------------
+What to Read:
+- Dimensional Modeling: fact vs dimension, grain, surrogate keys.
+- Slowly Changing Dimensions (SCD): handling history with SCD2.
+- Fact Table Types: transactional, snapshot, accumulating snapshot.
+Why It Helps: Covers data modeling rounds. Teaches how to design BI schemas for analytics.
+
+-------------------------------------------------------------
+Star Schema: The Complete Reference (Christopher Adamson)
+-------------------------------------------------------------
+What to Read:
+- Core Star Schema Patterns: denormalization, joins, star vs snowflake.
+- Common Pitfalls: schema mistakes to avoid.
+Why It Helps: Reinforces Kimball and sharpens schema design skills for SQL rounds.
+
+-------------------------------------------------------------
+Software Architecture: The Hard Parts (Neal Ford, Mark Richards)
+-------------------------------------------------------------
+What to Read:
+- Architectural Trade-offs: consistency vs availability, coupling vs decoupling.
+- Event-Driven Systems: async communication, microservices.
+Why It Helps: Helps you defend design tradeoffs at senior interviews (Kafka vs API, Redis vs Memcached).
+
+-------------------------------------------------------------
+🔥 Suggested 3–4 Week Priority Reading Order
+-------------------------------------------------------------
+1. Kleppmann (Ch. 2, 3, 4, 10, 11) – Core theory and tradeoffs.
+2. Streaming Systems (time semantics + exactly-once) – Reliability & Observability.
+3. Kimball + Adamson – Modeling mastery.
+4. Fundamentals of DE – End-to-end orchestration view.
+5. Software Architecture: The Hard Parts – Tradeoff maturity (senior bar).
