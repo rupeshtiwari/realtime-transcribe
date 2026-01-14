@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useSessionStore } from '../store/useSessionStore';
 import { useRealtimeTranscription } from '../hooks/useRealtimeTranscription';
 import {
@@ -55,11 +56,10 @@ export default function HomePage() {
         {!currentSession && (
           <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200/50 flex-shrink-0 backdrop-blur-sm glass">
             <p className="text-sm text-slate-700 dark:text-slate-300">
-              <strong className="font-semibold text-indigo-600 dark:text-indigo-400">Quick Start:</strong>{' '}
-              Click "Start Session" → Fill form → Share tab audio → Start coaching!{' '}
-              <a href="/help" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
-                📖 Full Help Guide
-              </a>
+              <strong className="font-semibold text-indigo-600 dark:text-indigo-400">New to Coach Copilot?</strong>{' '}
+              Click <Link to="/help" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                📖 Help & Documentation
+              </Link> for complete instructions on how to use the app.
             </p>
           </div>
         )}
