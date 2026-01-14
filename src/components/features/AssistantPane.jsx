@@ -8,7 +8,21 @@ export default function AssistantPane() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
-  const { assistantMessages, addAssistantMessage, currentSession, transcriptMessages } = useSessionStore();
+  
+  // Defensive store access
+  let assistantMessages = [];
+  let addAssistantMessage = () => {};
+  let currentSession = null;
+  let transcriptMessages = [];
+  try {
+    const store = useSessionStore();
+    assistantMessages = Array.isArray(store?.assistantMessages) ? store.assistantMessages : [];
+    addAssistantMessage = store?.addAssistantMessage || (() => {});
+    currentSession = store?.currentSession || null;
+    transcriptMessages = Array.isArray(store?.transcriptMessages) ? store.transcriptMessages : [];
+  } catch (error) {
+    console.error('Error accessing session store in AssistantPane:', error);
+  }
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

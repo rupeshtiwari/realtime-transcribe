@@ -12,7 +12,19 @@ import {
 import { Play, BookOpen } from 'lucide-react';
 
 export default function HomePage() {
-  const { currentSession, setCurrentSession, clearTranscript } = useSessionStore();
+  // Defensive store access
+  let currentSession = null;
+  let setCurrentSession = () => {};
+  let clearTranscript = () => {};
+  try {
+    const store = useSessionStore();
+    currentSession = store?.currentSession || null;
+    setCurrentSession = store?.setCurrentSession || (() => {});
+    clearTranscript = store?.clearTranscript || (() => {});
+  } catch (error) {
+    console.error('Error accessing session store in HomePage:', error);
+  }
+  
   const [showSessionModal, setShowSessionModal] = useState(false);
   
   const {

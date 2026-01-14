@@ -12,7 +12,23 @@ export default function TranscriptPane({
   onToggleSpeaker,
 }) {
   const listRef = useRef(null);
-  const { transcriptMessages, currentSpeaker } = useSessionStore();
+  
+  // Defensive store access with try-catch
+  let transcriptMessages = [];
+  let currentSpeaker = 'client';
+  try {
+    const store = useSessionStore();
+    transcriptMessages = Array.isArray(store?.transcriptMessages) 
+      ? store.transcriptMessages 
+      : [];
+    currentSpeaker = store?.currentSpeaker || 'client';
+  } catch (error) {
+    console.error('Error accessing session store:', error);
+    // Use defaults if store access fails
+    transcriptMessages = [];
+    currentSpeaker = 'client';
+  }
+  
   const shouldAutoScroll = useRef(true);
 
   // Auto-scroll to bottom when new messages arrive
@@ -50,63 +66,6 @@ export default function TranscriptPane({
     return div.innerHTML;
   };
 
-  // Memoize message rendering to prevent flickering
-  const MessageItem = useMemo(() => {
-    return ({ index, style }) => {
-      const msg = transcriptMessages[index];
-      if (!msg) return null;
-
-      const speakerName = msg.speaker === 'coach' ? 'Coach' : 'Client';
-      const speakerInitial = speakerName.charAt(0).toUpperCase();
-      const timeStr = new Date(msg.timestamp).toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      const isCoach = msg.speaker === 'coach';
-      
-      // Estimate height based on text length (rough calculation)
-      const textLength = msg.text.length;
-      const estimatedLines = Math.max(1, Math.ceil(textLength / 50));
-      const minHeight = 80 + (estimatedLines - 1) * 24;
-
-      return (
-        <div style={{ ...style, minHeight: `${minHeight}px` }} className="px-4 py-2">
-          <div className={clsx('flex gap-3', isCoach ? 'flex-row-reverse' : 'flex-row')}>
-            {/* Avatar */}
-            <div
-              className={clsx(
-                'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0',
-                isCoach ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
-              )}
-            >
-              {speakerInitial}
-            </div>
-
-            {/* Message Content */}
-            <div className={clsx('flex flex-col flex-1', isCoach ? 'items-end' : 'items-start')}>
-              <div
-                className={clsx(
-                  'px-4 py-2 rounded-2xl max-w-[80%] break-words',
-                  isCoach
-                    ? 'bg-green-100 text-green-900'
-                    : 'bg-white border border-border text-text'
-                )}
-              >
-                <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                  {escapeHtml(msg.text)}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 mt-1 text-xs text-text-secondary">
-                <span>{speakerName}</span>
-                <span>•</span>
-                <span>{timeStr}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    };
-  }, [transcriptMessages]);
 
   // Calculate list height dynamically based on container
   const containerRef = useRef(null);
@@ -166,19 +125,94 @@ export default function TranscriptPane({
           </div>
         ) : (
           <div className="h-full bg-gray-50 dark:bg-slate-800/50 rounded-xl overflow-hidden scrollbar-hide">
-            <List
-              ref={listRef}
-              height={Math.max(listHeight, 300)}
-              rowCount={transcriptMessages.length}
-              rowHeight={120} // Estimated height per message (will be adjusted by minHeight)
-              width="100%"
-              rowComponent={MessageItem}
-              style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
-              className="scrollbar-hide"
-            />
+            {Array.isArray(transcriptMessages) && transcriptMessages.length > 0 ? (
+              <List
+                ref={listRef}
+                height={Math.max(listHeight, 300)}
+                itemCount={transcriptMessages.length}
+                itemSize={120}
+                width="100%"
+                onScroll={handleScroll}
+                style={{
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                }}
+                className="scrollbar-hide"
+              >
+                {({ index, style }) => {
+                  // Defensive: ensure transcriptMessages is valid
+                  if (!Array.isArray(transcriptMessages) || index < 0 || index >= transcriptMessages.length) {
+                    return null;
+                  }
+                  
+                  const msg = transcriptMessages[index];
+                  if (!msg || typeof msg !== 'object' || msg === null) {
+                    return null;
+                  }
+
+                  const speakerName = msg.speaker === 'coach' ? 'Coach' : 'Client';
+                  const speakerInitial = speakerName.charAt(0).toUpperCase();
+                  let timeStr = '';
+                  try {
+                    const timestamp = msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp);
+                    timeStr = timestamp.toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    });
+                  } catch (e) {
+                    timeStr = new Date().toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    });
+                  }
+                  const isCoach = msg.speaker === 'coach';
+                  
+                  const textLength = String(msg.text || '').length;
+                  const estimatedLines = Math.max(1, Math.ceil(textLength / 50));
+                  const minHeight = 80 + (estimatedLines - 1) * 24;
+
+                  const validStyle = style && typeof style === 'object' ? style : {};
+
+                  return (
+                    <div style={{ ...validStyle, minHeight: `${minHeight}px` }} className="px-4 py-2">
+                      <div className={clsx('flex gap-3', isCoach ? 'flex-row-reverse' : 'flex-row')}>
+                        <div
+                          className={clsx(
+                            'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0',
+                            isCoach ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
+                          )}
+                        >
+                          {speakerInitial}
+                        </div>
+                        <div className={clsx('flex flex-col flex-1', isCoach ? 'items-end' : 'items-start')}>
+                          <div
+                            className={clsx(
+                              'px-4 py-2 rounded-2xl max-w-[80%] break-words',
+                              isCoach
+                                ? 'bg-green-100 text-green-900'
+                                : 'bg-white border border-border text-text'
+                            )}
+                          >
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                              {escapeHtml(String(msg.text || ''))}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-text-secondary">
+                            <span>{speakerName}</span>
+                            <span>•</span>
+                            <span>{timeStr}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }}
+              </List>
+            ) : (
+              <div className="h-full flex items-center justify-center text-text-secondary">
+                <p>No messages yet</p>
+              </div>
+            )}
           </div>
         )}
       </div>

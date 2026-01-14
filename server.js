@@ -8,7 +8,7 @@ const multer = require("multer");
 const app = express();
 app.use(express.json({ limit: "10mb" })); // Increased for file uploads
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const REALTIME_MODEL = process.env.REALTIME_MODEL || "gpt-4o-realtime-preview";
 const SUGGESTION_MODEL = process.env.SUGGESTION_MODEL || "gpt-4o-mini";
@@ -16,10 +16,6 @@ const SUGGESTION_MODEL = process.env.SUGGESTION_MODEL || "gpt-4o-mini";
 // Store OpenAI Assistant ID and file IDs (persist in .env or file)
 let ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID || null;
 let OPENAI_FILE_IDS = {}; // Map of file paths to OpenAI file IDs
-
-// Serve React app from dist, fallback to public for legacy files
-app.use(express.static("dist"));
-app.use(express.static("public")); // Fallback for legacy files (help.html, sessions.html, etc.)
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });
@@ -482,8 +478,12 @@ async function findMatchingMaterials(materialsPath, role, coachingType, agenda) 
 // Realtime Session
 // ============================================================================
 
-app.post("/api/session", async (_req, res) => {
+app.post("/api/session", async (req, res) => {
+  const startTime = Date.now();
+  console.log(`[${new Date().toISOString()}] POST /api/session - Creating new session`);
+  
   if (!OPENAI_API_KEY) {
+    console.error("[ERROR] Missing OPENAI_API_KEY");
     res.status(500).json({
       error: "Missing OPENAI_API_KEY. Set it in your environment (see .env.example).",
     });
@@ -491,6 +491,7 @@ app.post("/api/session", async (_req, res) => {
   }
 
   try {
+    console.log(`[INFO] Creating OpenAI Realtime session with model: ${REALTIME_MODEL}`);
     const resp = await fetch("https://api.openai.com/v1/realtime/sessions", {
       method: "POST",
       headers: {
@@ -505,6 +506,7 @@ app.post("/api/session", async (_req, res) => {
 
     const data = await resp.json();
     if (!resp.ok) {
+      console.error(`[ERROR] OpenAI API error (${resp.status}):`, JSON.stringify(data));
       res.status(resp.status).json({ error: data });
       return;
     }
@@ -516,12 +518,21 @@ app.post("/api/session", async (_req, res) => {
       data?.session?.client_secret?.value;
 
     if (!clientSecret) {
+      console.error("[ERROR] No client_secret in OpenAI response:", JSON.stringify(data));
       res.status(500).json({ error: "No client_secret in response", data });
       return;
     }
 
-    res.json({ client_secret: clientSecret });
+    const duration = Date.now() - startTime;
+    console.log(`[SUCCESS] Session created in ${duration}ms - client_secret: ${clientSecret.substring(0, 20)}...`);
+
+    res.json({ 
+      client_secret: clientSecret,
+      realtime_model: REALTIME_MODEL 
+    });
   } catch (err) {
+    const duration = Date.now() - startTime;
+    console.error(`[ERROR] Session creation failed after ${duration}ms:`, err.message, err.stack);
     res.status(500).json({ error: String(err?.message || err) });
   }
 });
@@ -764,7 +775,6 @@ app.post("/api/suggestions", async (req, res) => {
         }
         return res.json(result);
       }
-    }
 
     // Fallback to Chat Completions
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -973,6 +983,50 @@ function formatSessionAsDoc(sessionData) {
 if (process.env.AUTO_INIT_ASSISTANT === "true") {
   initializeAssistant().catch(console.error);
 }
+
+// Serve static files (CSS, JS, images, etc.) - must be after API routes
+// Serve React app assets from dist first (primary) - with no-cache headers for HTML
+app.use(express.static("dist", {
+  index: false, // Don't serve index.html automatically
+  setHeaders: (res, path) => {
+    if (path.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
+}));
+// Then serve legacy files from public (help.html, sessions.html, etc.) - but NOT index.html
+app.use(express.static("public", {
+  index: false // Don't serve index.html from public
+}));
+
+// Serve React app index.html for all non-API routes (must be last)
+// This handles React Router client-side routing
+app.use((req, res, next) => {
+  // Skip API routes
+  if (req.path.startsWith("/api")) {
+    return next();
+  }
+  
+  // Skip static file requests (they're handled by express.static above)
+  if (req.path.includes(".") && !req.path.endsWith(".html")) {
+    return next();
+  }
+  
+  // Always serve React app from dist/index.html
+  const indexPath = path.join(__dirname, "dist", "index.html");
+  if (fs.existsSync(indexPath)) {
+    // Set no-cache headers to prevent browser caching
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    return res.sendFile(indexPath);
+  }
+  
+  // If dist doesn't exist, return 404
+  res.status(404).send('React app not found. Please run: npm run build');
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

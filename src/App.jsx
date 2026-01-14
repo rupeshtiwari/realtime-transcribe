@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
 import { ThemeProvider, useThemeMode } from './context/ThemeContext';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import HomePage from './pages/HomePage';
 import SessionsPage from './pages/SessionsPage';
 import HelpPage from './pages/HelpPage';
@@ -18,10 +19,20 @@ const queryClient = new QueryClient({
   },
 });
 
-// Toast wrapper to use theme
+// Toast wrapper to use theme with defensive checks
 function ToastWrapper() {
-  const { actualMode } = useThemeMode();
-  const isDark = actualMode === 'dark';
+  let actualMode = 'light';
+  let isDark = false;
+  try {
+    const themeMode = useThemeMode();
+    actualMode = themeMode?.actualMode || 'light';
+    isDark = actualMode === 'dark';
+  } catch (error) {
+    console.error('Error accessing theme mode in ToastWrapper:', error);
+    // Use defaults
+    actualMode = 'light';
+    isDark = false;
+  }
   
   return (
     <Toaster
@@ -56,21 +67,23 @@ function ToastWrapper() {
 
 function App() {
   return (
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/sessions" element={<SessionsPage />} />
-              <Route path="/help" element={<HelpPage />} />
-              <Route path="/materials" element={<MaterialsPage />} />
-            </Routes>
-          </Layout>
-          <ToastWrapper />
-        </BrowserRouter>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <Layout>
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/sessions" element={<SessionsPage />} />
+                <Route path="/help" element={<HelpPage />} />
+                <Route path="/materials" element={<MaterialsPage />} />
+              </Routes>
+            </Layout>
+            <ToastWrapper />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 

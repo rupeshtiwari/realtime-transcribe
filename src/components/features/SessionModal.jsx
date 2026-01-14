@@ -103,14 +103,14 @@ export default function SessionModal({ onClose, onStart }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="glass rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm p-4">
+      <div className="glass rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto scrollbar-hide bg-white dark:bg-slate-800" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {/* Header */}
-        <div className="sticky top-0 bg-surface border-b border-border px-6 py-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Start New Coaching Session</h2>
+        <div className="sticky top-0 bg-surface dark:bg-slate-800 border-b border-border px-6 py-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Start New Coaching Session</h2>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition-colors text-gray-600 dark:text-gray-300"
           >
             <X className="w-5 h-5" />
           </button>
@@ -120,7 +120,7 @@ export default function SessionModal({ onClose, onStart }) {
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Email Parser */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
               📧 Paste Booking Email (Optional - Auto-fills form)
             </label>
             <textarea
@@ -128,7 +128,7 @@ export default function SessionModal({ onClose, onStart }) {
               onChange={(e) => setEmailText(e.target.value)}
               rows={6}
               placeholder="Paste the booking confirmation email here..."
-              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
             <button
               type="button"
@@ -141,7 +141,7 @@ export default function SessionModal({ onClose, onStart }) {
 
           {/* Candidate Name */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
               Candidate Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -150,13 +150,13 @@ export default function SessionModal({ onClose, onStart }) {
               value={formData.candidateName}
               onChange={(e) => setFormData((prev) => ({ ...prev, candidateName: e.target.value }))}
               placeholder="e.g., Jane Doe"
-              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
 
           {/* Role */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
               Candidate Role/Position <span className="text-red-500">*</span>
             </label>
             <input
@@ -165,20 +165,20 @@ export default function SessionModal({ onClose, onStart }) {
               value={formData.role}
               onChange={(e) => setFormData((prev) => ({ ...prev, role: e.target.value }))}
               placeholder="e.g., Senior Software Engineer"
-              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
 
           {/* Coaching Type */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
               Interview/Coaching Type <span className="text-red-500">*</span>
             </label>
             <select
               required
               value={formData.coachingType}
               onChange={(e) => setFormData((prev) => ({ ...prev, coachingType: e.target.value }))}
-              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100"
             >
               <option value="">Select type...</option>
               {COACHING_TYPES.map((type) => (
@@ -191,26 +191,26 @@ export default function SessionModal({ onClose, onStart }) {
 
           {/* Agenda */}
           <div>
-            <label className="block text-sm font-medium mb-2">Coaching Agenda (Optional)</label>
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">Coaching Agenda (Optional)</label>
             <textarea
               value={formData.coachingAgenda}
               onChange={(e) => setFormData((prev) => ({ ...prev, coachingAgenda: e.target.value }))}
               rows={4}
               placeholder="Additional notes, companies, interview dates..."
-              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
 
           {/* Selected Materials - Always show this section */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
               Selected Materials
               {selectedMaterials.length > 0 && (
-                <span className="text-xs text-gray-500 ml-2">({selectedMaterials.length} selected)</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">({selectedMaterials.length} selected)</span>
               )}
             </label>
             {selectedMaterials.length > 0 ? (
-              <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg min-h-[60px]">
+              <div className="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg min-h-[60px]">
                 {selectedMaterials.map((material, idx) => {
                   const fileName = material.includes('/') || material.includes('\\')
                     ? material.split(/[/\\]/).pop()
@@ -238,7 +238,7 @@ export default function SessionModal({ onClose, onStart }) {
                 })}
               </div>
             ) : (
-              <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-500 italic min-h-[60px] flex items-center">
+              <div className="p-3 bg-gray-50 dark:bg-slate-700 rounded-lg text-sm text-gray-500 dark:text-gray-400 italic min-h-[60px] flex items-center">
                 No materials selected. Materials will be auto-selected when you parse an email.
               </div>
             )}
@@ -246,7 +246,7 @@ export default function SessionModal({ onClose, onStart }) {
 
           {/* Session Name */}
           <div>
-            <label className="block text-sm font-medium mb-2">
+            <label className="block text-sm font-medium mb-2 text-gray-900 dark:text-gray-100">
               Session Name (Auto-generated, can edit)
             </label>
             <input
@@ -254,7 +254,7 @@ export default function SessionModal({ onClose, onStart }) {
               value={formData.sessionName}
               onChange={(e) => setFormData((prev) => ({ ...prev, sessionName: e.target.value }))}
               placeholder="Will be auto-generated from above fields"
-              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-slate-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
             />
           </div>
 

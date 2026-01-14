@@ -6,7 +6,19 @@ import toast from 'react-hot-toast';
 import { ANALYSIS_TYPES } from '../../constants';
 
 export default function AnalysisPane() {
-  const { transcriptMessages, analysisNotebook, addAnalysisResult } = useSessionStore();
+  // Defensive store access
+  let transcriptMessages = [];
+  let analysisNotebook = [];
+  let addAnalysisResult = () => {};
+  try {
+    const store = useSessionStore();
+    transcriptMessages = Array.isArray(store?.transcriptMessages) ? store.transcriptMessages : [];
+    analysisNotebook = Array.isArray(store?.analysisNotebook) ? store.analysisNotebook : [];
+    addAnalysisResult = store?.addAnalysisResult || (() => {});
+  } catch (error) {
+    console.error('Error accessing session store in AnalysisPane:', error);
+  }
+  
   const [loading, setLoading] = useState(null);
 
   const getTranscriptText = () => {

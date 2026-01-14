@@ -5,7 +5,15 @@ import { Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function SuggestionsPane() {
-  const { transcriptMessages } = useSessionStore();
+  // Defensive store access
+  let transcriptMessages = [];
+  try {
+    const store = useSessionStore();
+    transcriptMessages = Array.isArray(store?.transcriptMessages) ? store.transcriptMessages : [];
+  } catch (error) {
+    console.error('Error accessing session store in SuggestionsPane:', error);
+  }
+  
   const [suggestions, setSuggestions] = useState(null);
   const [loading, setLoading] = useState(false);
 

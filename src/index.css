@@ -206,13 +206,30 @@
     color: #0f172a;
   }
 
+  input::placeholder,
+  textarea::placeholder {
+    color: #64748b;
+    opacity: 0.7;
+  }
+
   [data-theme='dark'] input[type='text'],
   [data-theme='dark'] input[type='email'],
   [data-theme='dark'] textarea,
   [data-theme='dark'] select {
-    background: rgba(30, 41, 59, 0.98);
-    border: 1px solid rgba(148, 163, 184, 0.15);
-    color: #f1f5f9;
+    background: rgba(30, 41, 59, 0.98) !important;
+    border: 1px solid rgba(148, 163, 184, 0.3) !important;
+    color: #f1f5f9 !important;
+  }
+
+  [data-theme='dark'] input::placeholder,
+  [data-theme='dark'] textarea::placeholder {
+    color: #94a3b8 !important;
+    opacity: 0.8 !important;
+  }
+
+  [data-theme='dark'] select option {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
   }
 
   input:focus,
@@ -227,7 +244,9 @@
   [data-theme='dark'] input:focus,
   [data-theme='dark'] textarea:focus,
   [data-theme='dark'] select:focus {
-    background: rgba(30, 41, 59, 1);
+    background: rgba(30, 41, 59, 1) !important;
+    border-color: #818cf8 !important;
+    color: #f1f5f9 !important;
     box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2);
   }
 }

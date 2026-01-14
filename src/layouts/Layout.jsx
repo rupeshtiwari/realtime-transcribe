@@ -3,27 +3,110 @@ import { useSessionStore } from '../store/useSessionStore';
 import { BookOpen, HelpCircle, FolderOpen } from 'lucide-react';
 import ThemeToggle from '../components/common/ThemeToggle';
 import { Box, Button } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { useSafeTheme } from '../utils/safeTheme';
+import { safeSx } from '../utils/safeSx';
 
 export default function Layout({ children }) {
   const location = useLocation();
-  const { currentSession, transcriptMessages } = useSessionStore();
-  const theme = useTheme();
+  
+  // Defensive store access with try-catch
+  let currentSession = null;
+  let transcriptMessages = [];
+  try {
+    const store = useSessionStore();
+    currentSession = store?.currentSession || null;
+    transcriptMessages = Array.isArray(store?.transcriptMessages) ? store.transcriptMessages : [];
+  } catch (error) {
+    console.error('Error accessing session store in Layout:', error);
+    // Use defaults
+    currentSession = null;
+    transcriptMessages = [];
+  }
+  
+  // Defensive theme access with full validation
+  let theme;
+  let themeMode = 'light';
+  let textPrimary = '#0f172a';
+  let textSecondary = '#64748b';
+  let primaryMain = '#6366f1';
+  let backgroundDefault = '#fafbfc';
+  let dividerColor = 'rgba(148, 163, 184, 0.2)';
+  
+  try {
+    theme = useSafeTheme();
+    // Deep validation - ensure theme is valid and all properties are objects
+    if (theme && typeof theme === 'object' && theme !== null && !Array.isArray(theme)) {
+      // Validate palette exists and is a valid object
+      if (theme.palette && typeof theme.palette === 'object' && theme.palette !== null && !Array.isArray(theme.palette)) {
+        themeMode = theme.palette.mode || 'light';
+        
+        // Validate text object
+        if (theme.palette.text && typeof theme.palette.text === 'object' && theme.palette.text !== null && !Array.isArray(theme.palette.text)) {
+          textPrimary = theme.palette.text.primary || '#0f172a';
+          textSecondary = theme.palette.text.secondary || '#64748b';
+        }
+        
+        // Validate primary object
+        if (theme.palette.primary && typeof theme.palette.primary === 'object' && theme.palette.primary !== null && !Array.isArray(theme.palette.primary)) {
+          primaryMain = theme.palette.primary.main || '#6366f1';
+        }
+        
+        // Validate background object
+        if (theme.palette.background && typeof theme.palette.background === 'object' && theme.palette.background !== null && !Array.isArray(theme.palette.background)) {
+          backgroundDefault = theme.palette.background.default || '#fafbfc';
+        }
+        
+        // Validate divider
+        if (theme.palette.divider && typeof theme.palette.divider === 'string') {
+          dividerColor = theme.palette.divider;
+        }
+      } else {
+        console.warn('Invalid theme.palette in Layout, using defaults');
+      }
+      
+      // Test that Object.values can be called safely on palette
+      try {
+        if (theme.palette) {
+          const paletteValues = Object.values(theme.palette);
+          // Ensure all values are valid (not null/undefined)
+          paletteValues.forEach((value, idx) => {
+            if (value === null || value === undefined) {
+              console.warn(`Invalid palette value at index ${idx}, using defaults`);
+            }
+          });
+        }
+      } catch (validationError) {
+        console.error('Theme palette validation failed:', validationError);
+        // Use defaults
+      }
+    } else {
+      console.warn('Invalid theme in Layout, using defaults');
+    }
+  } catch (error) {
+    console.error('Error accessing theme in Layout:', error);
+    // Use safe defaults
+    themeMode = 'light';
+    textPrimary = '#0f172a';
+    textSecondary = '#64748b';
+    primaryMain = '#6366f1';
+    backgroundDefault = '#fafbfc';
+    dividerColor = 'rgba(148, 163, 184, 0.2)';
+  }
 
   return (
     <Box
-      sx={{
+      sx={safeSx({
         height: '100vh',
         width: '100vw',
-        bgcolor: 'background.default',
-        color: 'text.primary',
+        bgcolor: backgroundDefault,
+        color: textPrimary,
         position: 'fixed',
         top: 0,
         left: 0,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        background: theme.palette.mode === 'dark'
+        background: themeMode === 'dark'
           ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
           : 'linear-gradient(135deg, #fafbfc 0%, #f1f5f9 50%, #fafbfc 100%)',
         backgroundSize: '200% 200%',
@@ -33,29 +116,29 @@ export default function Layout({ children }) {
           '50%': { backgroundPosition: '100% 50%' },
           '100%': { backgroundPosition: '0% 50%' },
         },
-      }}
+      })}
     >
       {/* Header for Home Page - Navigation + Theme Toggle */}
       {location.pathname === '/' && (
         <Box
           component="header"
-          sx={{
+          sx={safeSx({
             position: 'sticky',
             top: 0,
             zIndex: 50,
-            background: theme.palette.mode === 'dark'
+            background: themeMode === 'dark'
               ? 'rgba(30, 41, 59, 0.9)'
               : 'rgba(255, 255, 255, 0.9)',
             backdropFilter: 'blur(20px) saturate(180%)',
             borderBottom: '1px solid',
-            borderColor: 'divider',
+            borderColor: dividerColor,
             flexShrink: 0,
             height: 64,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             px: 3,
-          }}
+          })}
         >
           {/* Navigation */}
           <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -76,14 +159,14 @@ export default function Layout({ children }) {
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   textDecoration: 'none',
-                  color: theme.palette.text.secondary,
+                  color: textSecondary,
                   background: 'transparent',
                   transition: 'all 0.2s ease',
                   border: '1px solid transparent',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.background =
-                    theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)';
+                    themeMode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'transparent';
@@ -104,21 +187,21 @@ export default function Layout({ children }) {
       {location.pathname !== '/' && (
         <Box
           component="header"
-          sx={{
+          sx={safeSx({
             position: 'sticky',
             top: 0,
             zIndex: 50,
-            background: theme.palette.mode === 'dark'
+            background: themeMode === 'dark'
               ? 'rgba(30, 41, 59, 0.9)'
               : 'rgba(255, 255, 255, 0.9)',
             backdropFilter: 'blur(20px) saturate(180%)',
             borderBottom: '1px solid',
-            borderColor: 'divider',
-            boxShadow: theme.palette.mode === 'dark'
+            borderColor: dividerColor,
+            boxShadow: themeMode === 'dark'
               ? '0 4px 20px rgba(0, 0, 0, 0.4)'
               : '0 4px 20px rgba(0, 0, 0, 0.08)',
             flexShrink: 0,
-          }}
+          })}
         >
           <Box sx={{ maxWidth: '1600px', mx: 'auto', px: { xs: 3, sm: 4, lg: 6 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
@@ -151,7 +234,7 @@ export default function Layout({ children }) {
                     sx={{
                       fontSize: '1.125rem',
                       fontWeight: 600,
-                      color: 'text.primary',
+                      color: textPrimary,
                       letterSpacing: '-0.025em',
                     }}
                   >
@@ -181,19 +264,19 @@ export default function Layout({ children }) {
                         fontSize: '0.875rem',
                         fontWeight: 500,
                         textDecoration: 'none',
-                        color: isActive ? theme.palette.primary.main : theme.palette.text.secondary,
+                        color: isActive ? primaryMain : textSecondary,
                         background: isActive
-                          ? theme.palette.mode === 'dark'
+                          ? themeMode === 'dark'
                             ? 'rgba(129, 140, 248, 0.2)'
                             : 'rgba(99, 102, 241, 0.1)'
                           : 'transparent',
                         transition: 'all 0.2s ease',
-                        border: isActive ? `1px solid ${theme.palette.primary.main}40` : '1px solid transparent',
+                        border: isActive ? `1px solid ${primaryMain}40` : '1px solid transparent',
                       }}
                       onMouseEnter={(e) => {
                         if (!isActive) {
                           e.currentTarget.style.background =
-                            theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)';
+                            themeMode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -221,18 +304,18 @@ export default function Layout({ children }) {
                       variant="outlined"
                       disabled={!currentSession || transcriptMessages.length === 0}
                       title="Save to Google Drive"
-                      sx={{
+                      sx={safeSx({
                         minWidth: 'auto',
                         px: 2,
                         borderRadius: '12px',
-                        borderColor: 'divider',
+                        borderColor: dividerColor,
                         textTransform: 'none',
                         fontWeight: 500,
                         transition: 'all 0.2s ease',
                         '&:hover': {
                           transform: 'translateY(-1px)',
                         },
-                      }}
+                      })}
                     >
                       📄 Drive
                     </Button>
@@ -241,18 +324,18 @@ export default function Layout({ children }) {
                       variant="outlined"
                       disabled={!currentSession}
                       title="Export session"
-                      sx={{
+                      sx={safeSx({
                         minWidth: 'auto',
                         px: 2,
                         borderRadius: '12px',
-                        borderColor: 'divider',
+                        borderColor: dividerColor,
                         textTransform: 'none',
                         fontWeight: 500,
                         transition: 'all 0.2s ease',
                         '&:hover': {
                           transform: 'translateY(-1px)',
                         },
-                      }}
+                      })}
                     >
                       💾 Export
                     </Button>
@@ -267,7 +350,7 @@ export default function Layout({ children }) {
       {/* Main Content - Fixed height, no scrollbars */}
       <Box
         component="main"
-        sx={{
+        sx={safeSx({
           flex: 1,
           minHeight: 0,
           overflow: 'hidden',
@@ -275,7 +358,7 @@ export default function Layout({ children }) {
           zIndex: 1,
           display: 'flex',
           flexDirection: 'column',
-        }}
+        })}
       >
         {children}
       </Box>

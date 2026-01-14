@@ -11,7 +11,9 @@
     "start": "node server.js",
     "dev": "node server.js",
     "dev:react": "vite",
+    "dev:all": "concurrently \"npm run dev\" \"npm run dev:react\"",
     "build": "vite build",
+    "build:start": "npm run build && npm start",
     "preview": "vite preview"
   },
   "dependencies": {

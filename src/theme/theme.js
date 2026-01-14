@@ -214,8 +214,43 @@ export const darkTheme = createTheme({
   },
 });
 
-// Get theme based on mode
+// Get theme based on mode with validation
 export const getTheme = (mode) => {
-  if (mode === 'dark') return darkTheme;
-  return lightTheme;
+  try {
+    if (mode === 'dark') {
+      // Validate dark theme before returning
+      if (!darkTheme || typeof darkTheme !== 'object' || darkTheme === null) {
+        console.error('Invalid dark theme, using light theme');
+        return lightTheme;
+      }
+      return darkTheme;
+    }
+    // Validate light theme before returning
+    if (!lightTheme || typeof lightTheme !== 'object' || lightTheme === null) {
+      console.error('Invalid light theme, creating fallback');
+      // Return a minimal valid theme
+      return createTheme({
+        palette: {
+          mode: 'light',
+          primary: { main: '#6366f1' },
+          text: { primary: '#0f172a', secondary: '#64748b' },
+          background: { default: '#fafbfc', paper: '#ffffff' },
+          divider: 'rgba(148, 163, 184, 0.2)',
+        },
+      });
+    }
+    return lightTheme;
+  } catch (error) {
+    console.error('Error getting theme:', error);
+    // Return a minimal fallback theme
+    return createTheme({
+      palette: {
+        mode: 'light',
+        primary: { main: '#6366f1' },
+        text: { primary: '#0f172a', secondary: '#64748b' },
+        background: { default: '#fafbfc', paper: '#ffffff' },
+        divider: 'rgba(148, 163, 184, 0.2)',
+      },
+    });
+  }
 };

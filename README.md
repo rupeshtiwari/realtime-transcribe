@@ -94,10 +94,32 @@ SUGGESTION_MODEL=gpt-4o-mini
 
 ### Running the Application
 
-**Option 1: Legacy Vanilla JS App (Fully Functional)**
+**Option 1: React App (Production - Recommended)**
+```bash
+# Build the React app first
+npm run build
+
+# Then start the server (serves built app from dist/)
+npm start
+```
+The app will be available at `http://localhost:3001` (or your configured PORT)
+
+**Option 2: React App (Development Mode)**
+```bash
+# Terminal 1: Start the backend server
+npm run dev
+
+# Terminal 2: Start the React dev server (with hot reload)
+npm run dev:react
+```
+- Backend API: `http://localhost:3001`
+- React App: `http://localhost:8080` (proxies API calls to backend)
+
+**Option 3: Legacy Vanilla JS App (Fully Functional)**
 ```bash
 npm start
 ```
+Then visit `http://localhost:3001` and use the legacy interface at `/public/index.html`
 Visit http://localhost:3000
 
 **Option 2: React Development Server**
