@@ -69,8 +69,8 @@ export default function Layout({ children }) {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main>{children}</main>
+      {/* Main Content - Fixed height to prevent page scroll */}
+      <main className="h-[calc(100vh-4rem)] overflow-hidden">{children}</main>
     </div>
   );
 }

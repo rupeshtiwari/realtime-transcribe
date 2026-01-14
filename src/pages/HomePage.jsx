@@ -38,51 +38,59 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      {/* Quick Start Banner */}
-      <div className="mb-4 p-3 bg-primary/10 border-l-4 border-primary rounded-lg">
-        <p className="text-sm text-text">
-          <strong>Quick Start:</strong> Click "Start Session" → Fill form → Share tab audio → Start coaching!{' '}
-          <a href="/help" className="text-primary underline">
-            📖 Full Help Guide
-          </a>
-        </p>
-      </div>
+    <div className="h-[calc(100vh-4rem)] overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 h-full flex flex-col">
+        {/* Quick Start Banner */}
+        <div className="mb-3 p-2 bg-primary/10 border-l-4 border-primary rounded-lg flex-shrink-0">
+          <p className="text-xs text-text">
+            <strong>Quick Start:</strong> Click "Start Session" → Fill form → Share tab audio → Start coaching!{' '}
+            <a href="/help" className="text-primary underline">
+              📖 Full Help Guide
+            </a>
+          </p>
+        </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Transcript Pane - Takes 2 columns on large screens */}
-        <div className="lg:col-span-2">
-          <TranscriptPane
-            isRecording={isRecording}
-            status={status}
-            onStart={() => {
-              if (!currentSession) {
-                setShowSessionModal(true);
-              } else {
-                startTranscription().catch(console.error);
-              }
-            }}
-            onStop={handleStop}
-            onToggleSpeaker={toggleSpeaker}
+        {/* Main Grid - Full height */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 min-h-0">
+          {/* Transcript Pane - Takes 2 columns on large screens */}
+          <div className="lg:col-span-2 min-h-0 flex flex-col">
+            <TranscriptPane
+              isRecording={isRecording}
+              status={status}
+              onStart={() => {
+                if (!currentSession) {
+                  setShowSessionModal(true);
+                } else {
+                  startTranscription().catch(console.error);
+                }
+              }}
+              onStop={handleStop}
+              onToggleSpeaker={toggleSpeaker}
+            />
+          </div>
+
+          {/* Right Column - Suggestions, Analysis, Assistant */}
+          <div className="space-y-4 min-h-0 flex flex-col">
+            <div className="flex-1 min-h-0">
+              <SuggestionsPane />
+            </div>
+            <div className="flex-1 min-h-0">
+              <AnalysisPane />
+            </div>
+            <div className="flex-1 min-h-0">
+              <AssistantPane />
+            </div>
+          </div>
+        </div>
+
+        {/* Session Modal */}
+        {showSessionModal && (
+          <SessionModal
+            onClose={() => setShowSessionModal(false)}
+            onStart={handleStartSession}
           />
-        </div>
-
-        {/* Right Column - Suggestions, Analysis, Assistant */}
-        <div className="space-y-4">
-          <SuggestionsPane />
-          <AnalysisPane />
-          <AssistantPane />
-        </div>
+        )}
       </div>
-
-      {/* Session Modal */}
-      {showSessionModal && (
-        <SessionModal
-          onClose={() => setShowSessionModal(false)}
-          onStart={handleStartSession}
-        />
-      )}
     </div>
   );
 }

@@ -1,7 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
 import { useSessionStore } from '../store/useSessionStore';
 import { Mic, MicOff, Play, Square } from 'lucide-react';
 import { clsx } from 'clsx';
+import { FixedSizeList as List } from 'react-window';
 
 export default function TranscriptPane({
   isRecording,
@@ -10,15 +11,29 @@ export default function TranscriptPane({
   onStop,
   onToggleSpeaker,
 }) {
-  const chatRef = useRef(null);
+  const listRef = useRef(null);
   const { transcriptMessages, currentSpeaker } = useSessionStore();
+  const shouldAutoScroll = useRef(true);
 
-  // Auto-scroll to bottom
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    if (chatRef.current) {
-      chatRef.current.scrollTop = chatRef.current.scrollHeight;
+    if (shouldAutoScroll.current && listRef.current && transcriptMessages.length > 0) {
+      listRef.current.scrollToItem(transcriptMessages.length - 1, 'end');
     }
-  }, [transcriptMessages]);
+  }, [transcriptMessages.length]);
+
+  // Handle scroll events to detect user scrolling up
+  const handleScroll = useCallback(({ scrollOffset, scrollUpdateWasRequested }) => {
+    if (!scrollUpdateWasRequested) {
+      // User is manually scrolling
+      const list = listRef.current;
+      if (list) {
+        const maxScroll = list.props.height - list.state.scrollOffset;
+        const isNearBottom = scrollOffset >= maxScroll - 100; // 100px threshold
+        shouldAutoScroll.current = isNearBottom;
+      }
+    }
+  }, []);
 
   const escapeHtml = (text) => {
     if (typeof text !== 'string') return text;
@@ -27,10 +42,84 @@ export default function TranscriptPane({
     return div.innerHTML;
   };
 
+  // Memoize message rendering to prevent flickering
+  const MessageItem = useCallback(({ index, style }) => {
+    const msg = transcriptMessages[index];
+    if (!msg) return null;
+
+    const speakerName = msg.speaker === 'coach' ? 'Coach' : 'Client';
+    const speakerInitial = speakerName.charAt(0).toUpperCase();
+    const timeStr = new Date(msg.timestamp).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const isCoach = msg.speaker === 'coach';
+    
+    // Estimate height based on text length (rough calculation)
+    const textLength = msg.text.length;
+    const estimatedLines = Math.max(1, Math.ceil(textLength / 50));
+    const minHeight = 80 + (estimatedLines - 1) * 24;
+
+    return (
+      <div style={{ ...style, minHeight: `${minHeight}px` }} className="px-4 py-2">
+        <div className={clsx('flex gap-3', isCoach ? 'flex-row-reverse' : 'flex-row')}>
+          {/* Avatar */}
+          <div
+            className={clsx(
+              'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0',
+              isCoach ? 'bg-green-500 text-white' : 'bg-blue-500 text-white'
+            )}
+          >
+            {speakerInitial}
+          </div>
+
+          {/* Message Content */}
+          <div className={clsx('flex flex-col flex-1', isCoach ? 'items-end' : 'items-start')}>
+            <div
+              className={clsx(
+                'px-4 py-2 rounded-2xl max-w-[80%] break-words',
+                isCoach
+                  ? 'bg-green-100 text-green-900'
+                  : 'bg-white border border-border text-text'
+              )}
+            >
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                {escapeHtml(msg.text)}
+              </p>
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-xs text-text-secondary">
+              <span>{speakerName}</span>
+              <span>•</span>
+              <span>{timeStr}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }, [transcriptMessages]);
+
+  // Calculate list height dynamically based on container
+  const containerRef = useRef(null);
+  const [listHeight, setListHeight] = useState(500);
+
+  useEffect(() => {
+    const updateHeight = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        // Subtract header (60px) and controls (80px) and padding
+        setListHeight(rect.height - 140);
+      }
+    };
+
+    updateHeight();
+    window.addEventListener('resize', updateHeight);
+    return () => window.removeEventListener('resize', updateHeight);
+  }, []);
+
   return (
-    <div className="pane">
+    <div ref={containerRef} className="pane flex flex-col h-full min-h-0">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 flex-shrink-0">
         <h2 className="pane__title">Live Transcript</h2>
         <div className="flex items-center gap-2">
           <button
@@ -56,81 +145,48 @@ export default function TranscriptPane({
         </div>
       </div>
 
-      {/* Transcript Chat */}
-      <div
-        ref={chatRef}
-        className="flex-1 overflow-y-auto min-h-[400px] max-h-[600px] space-y-3 p-4 bg-gray-50 rounded-lg"
-      >
+      {/* Transcript List - Virtualized for performance */}
+      <div className="flex-1 min-h-0 relative">
         {transcriptMessages.length === 0 ? (
-          <div className="text-center text-text-secondary py-12">
-            Transcript will appear here as audio is captured...
+          <div className="absolute inset-0 flex items-center justify-center text-center text-text-secondary">
+            <div>
+              <p className="text-lg mb-2">📝</p>
+              <p>Transcript will appear here as audio is captured...</p>
+            </div>
           </div>
         ) : (
-          transcriptMessages.map((msg) => {
-            const speakerName = msg.speaker === 'coach' ? 'Coach' : 'Client';
-            const speakerInitial = speakerName.charAt(0).toUpperCase();
-            const timeStr = msg.timestamp.toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit',
-            });
-            const isCoach = msg.speaker === 'coach';
-
-            return (
-              <div
-                key={msg.id}
-                className={clsx(
-                  'flex gap-3',
-                  isCoach ? 'flex-row-reverse' : 'flex-row'
-                )}
-              >
-                {/* Avatar */}
-                <div
-                  className={clsx(
-                    'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold flex-shrink-0',
-                    isCoach
-                      ? 'bg-green-500 text-white'
-                      : 'bg-blue-500 text-white'
-                  )}
-                >
-                  {speakerInitial}
-                </div>
-
-                {/* Message Content */}
-                <div className={clsx('flex flex-col', isCoach ? 'items-end' : 'items-start')}>
-                  <div
-                    className={clsx(
-                      'px-4 py-2 rounded-2xl max-w-[80%]',
-                      isCoach
-                        ? 'bg-green-100 text-green-900'
-                        : 'bg-white border border-border text-text'
-                    )}
-                  >
-                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                      {escapeHtml(msg.text)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1 text-xs text-text-secondary">
-                    <span>{speakerName}</span>
-                    <span>•</span>
-                    <span>{timeStr}</span>
-                  </div>
-                </div>
-              </div>
-            );
-          })
+          <div className="h-full bg-gray-50 rounded-lg overflow-hidden">
+            <List
+              ref={listRef}
+              height={Math.max(listHeight, 300)}
+              itemCount={transcriptMessages.length}
+              itemSize={120} // Estimated height per message (will be adjusted by minHeight)
+              width="100%"
+              onScroll={handleScroll}
+              style={{
+                scrollbarWidth: 'thin',
+                scrollbarColor: '#cbd5e1 #f1f5f9',
+              }}
+            >
+              {MessageItem}
+            </List>
+          </div>
         )}
       </div>
 
       {/* Status & Controls */}
-      <div className="mt-4 flex items-center justify-between">
+      <div className="mt-4 flex items-center justify-between flex-shrink-0 pt-4 border-t border-border">
         <div className="flex items-center gap-2 text-sm text-text-secondary">
           <div
             className={clsx(
-              'w-2 h-2 rounded-full',
+              'w-2 h-2 rounded-full animate-pulse',
               status.isActive ? 'bg-green-500' : 'bg-gray-400'
             )}
           />
           <span>{status.text}</span>
+          {transcriptMessages.length > 0 && (
+            <span className="text-xs">• {transcriptMessages.length} messages</span>
+          )}
         </div>
 
         <div className="flex items-center gap-2">

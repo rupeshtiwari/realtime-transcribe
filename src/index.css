@@ -74,3 +74,33 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-400;
 }
+
+/* Prevent page scrollbar flickering */
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+#root {
+  overflow: hidden;
+}
+
+/* Smooth scrolling */
+* {
+  scroll-behavior: smooth;
+}
+
+/* React Window list styling */
+.react-window-list {
+  outline: none;
+}
+
+/* Hide scrollbar for cleaner look (optional) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
