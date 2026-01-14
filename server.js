@@ -3,6 +3,7 @@ const express = require("express");
 const fs = require("fs-extra");
 const path = require("path");
 const FormData = require("form-data");
+const multer = require("multer");
 
 const app = express();
 app.use(express.json({ limit: "10mb" })); // Increased for file uploads
@@ -199,38 +200,33 @@ app.get("/api/materials/list", async (req, res) => {
   }
 });
 
+// Configure multer for file uploads
+const upload = multer({ 
+  dest: path.join(__dirname, "data", "Mentoring Materials", "uploads"),
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+});
+
 // Upload materials to folder
-app.post("/api/materials/upload", async (req, res) => {
+app.post("/api/materials/upload", upload.array("files", 10), async (req, res) => {
   try {
-    const multer = require("multer");
-    const upload = multer({ 
-      dest: path.join(__dirname, "data", "Mentoring Materials", "uploads"),
-      limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
-    });
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: "No files uploaded" });
+    }
     
-    upload.array("files", 10)(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ error: err.message });
-      }
-      
-      if (!req.files || req.files.length === 0) {
-        return res.status(400).json({ error: "No files uploaded" });
-      }
-      
-      const materialsPath = path.join(__dirname, "data", "Mentoring Materials");
-      const uploadedFiles = [];
-      
-      for (const file of req.files) {
-        const targetPath = path.join(materialsPath, file.originalname);
-        await fs.move(file.path, targetPath, { overwrite: true });
-        uploadedFiles.push(file.originalname);
-      }
-      
-      res.json({ 
-        success: true,
-        files: uploadedFiles,
-        message: `Uploaded ${uploadedFiles.length} file(s)`
-      });
+    const materialsPath = path.join(__dirname, "data", "Mentoring Materials");
+    await fs.ensureDir(materialsPath);
+    const uploadedFiles = [];
+    
+    for (const file of req.files) {
+      const targetPath = path.join(materialsPath, file.originalname);
+      await fs.move(file.path, targetPath, { overwrite: true });
+      uploadedFiles.push(file.originalname);
+    }
+    
+    res.json({ 
+      success: true,
+      files: uploadedFiles,
+      message: `Uploaded ${uploadedFiles.length} file(s)`
     });
   } catch (err) {
     console.error("Error uploading materials:", err);
