@@ -2,6 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Toast notifications theme variables */
+:root {
+  --toast-bg: #ffffff;
+  --toast-color: #0b1220;
+}
+
+[data-theme='dark'] {
+  --toast-bg: #1a1f2e;
+  --toast-color: #f6f7fb;
+}
+
 @layer base {
   * {
     @apply box-border;

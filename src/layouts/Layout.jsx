@@ -1,15 +1,36 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useSessionStore } from '../store/useSessionStore';
 import { BookOpen, HelpCircle, FolderOpen } from 'lucide-react';
+import { useThemeMode } from '../context/ThemeContext';
+import ThemeToggle from '../components/ThemeToggle';
+import { Box } from '@mui/material';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const { currentSession, transcriptMessages } = useSessionStore();
+  const { actualMode } = useThemeMode();
 
   return (
-    <div className="min-h-screen bg-background">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        color: 'text.primary',
+      }}
+    >
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-surface border-b border-border shadow-sm">
+      <Box
+        component="header"
+        sx={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 50,
+          bgcolor: 'background.paper',
+          borderBottom: 1,
+          borderColor: 'divider',
+          boxShadow: 1,
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo & Title */}
@@ -61,6 +82,7 @@ export default function Layout({ children }) {
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
+              <ThemeToggle />
               {currentSession && (
                 <>
                   <button
@@ -78,10 +100,18 @@ export default function Layout({ children }) {
             </div>
           </div>
         </div>
-      </header>
+      </Box>
 
       {/* Main Content - Fixed height to prevent page scroll */}
-      <main className="h-[calc(100vh-4rem)] overflow-hidden">{children}</main>
-    </div>
+      <Box
+        component="main"
+        sx={{
+          height: 'calc(100vh - 4rem)',
+          overflow: 'hidden',
+        }}
+      >
+        {children}
+      </Box>
+    </Box>
   );
 }

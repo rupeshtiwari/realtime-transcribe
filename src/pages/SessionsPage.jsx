@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { sessionStorage } from '../utils/sessionStorage';
 import { BookOpen, Search, Filter, Trash2, Download, Eye, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SessionsPage() {
   const [sessions, setSessions] = useState([]);
@@ -44,10 +45,43 @@ export default function SessionsPage() {
     setFilteredSessions(filtered);
   };
 
-  const handleDelete = (sessionId) => {
-    if (confirm('Are you sure you want to delete this session? This cannot be undone.')) {
+  const handleDelete = async (sessionId) => {
+    const confirmed = await new Promise((resolve) => {
+      toast(
+        (t) => (
+          <div className="flex flex-col gap-2">
+            <p className="font-semibold">Delete session?</p>
+            <p className="text-sm text-gray-600">This cannot be undone.</p>
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  resolve(true);
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  resolve(false);
+                }}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ),
+        { duration: Infinity }
+      );
+    });
+
+    if (confirmed) {
       sessionStorage.deleteSession(sessionId);
       loadSessions();
+      toast.success('Session deleted successfully');
     }
   };
 

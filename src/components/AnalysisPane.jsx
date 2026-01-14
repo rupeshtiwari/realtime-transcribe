@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSessionStore } from '../store/useSessionStore';
 import { api } from '../services/api';
 import { FileText, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ANALYSIS_TYPES = [
   { id: 'followup', label: 'Follow-up Questions', endpoint: 'followup' },
@@ -27,17 +28,22 @@ export default function AnalysisPane() {
   const handleAnalysis = async (type) => {
     const transcript = getTranscriptText().trim();
     if (!transcript) {
-      alert('Please add transcript text first');
+      toast.error('Please add transcript text first');
       return;
     }
 
     setLoading(type.id);
+    const loadingToast = toast.loading(`Generating ${type.label}...`);
+    
     try {
       const data = await api.analyze(type.endpoint, transcript);
       addAnalysisResult(type.label, data.result);
+      toast.dismiss(loadingToast);
+      toast.success(`${type.label} generated successfully!`);
     } catch (err) {
       console.error('Analysis error:', err);
-      alert(`Error generating ${type.label}: ${err.message}`);
+      toast.dismiss(loadingToast);
+      toast.error(`Error generating ${type.label}: ${err.message}`);
     } finally {
       setLoading(null);
     }

@@ -3,6 +3,7 @@ import { useMaterialsStore } from '../store/useMaterialsStore';
 import { parseEmail, autoGenerateSessionName } from '../utils/emailParser';
 import { api } from '../services/api';
 import { X } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SessionModal({ onClose, onStart }) {
   const [formData, setFormData] = useState({
@@ -31,36 +32,52 @@ export default function SessionModal({ onClose, onStart }) {
 
   const handleParseEmail = async () => {
     if (!emailText.trim()) {
-      alert('Please paste the booking email first');
+      toast.error('Please paste the booking email first');
       return;
     }
 
-    const parsed = parseEmail(emailText);
-    setFormData((prev) => ({
-      ...prev,
-      candidateName: parsed.candidateName || prev.candidateName,
-      role: parsed.role || prev.role,
-      coachingType: parsed.coachingType || prev.coachingType,
-      coachingAgenda: parsed.coachingAgenda || prev.coachingAgenda,
-    }));
+    const loadingToast = toast.loading('Parsing email...');
 
-    // Auto-select materials from folder
-    if (parsed.role || parsed.coachingType) {
-      try {
-        const data = await api.matchMaterials(parsed.role, parsed.coachingType, parsed.coachingAgenda);
-        setSelectedMaterials(data.materials.map((m) => m.path || m.name));
-        alert(`Email parsed! ${data.materials.length} materials auto-selected.`);
-      } catch (err) {
-        console.warn('Error matching materials:', err);
-        alert('Email parsed! Please review and adjust the fields.');
+    try {
+      const parsed = parseEmail(emailText);
+      setFormData((prev) => ({
+        ...prev,
+        candidateName: parsed.candidateName || prev.candidateName,
+        role: parsed.role || prev.role,
+        coachingType: parsed.coachingType || prev.coachingType,
+        coachingAgenda: parsed.coachingAgenda || prev.coachingAgenda,
+      }));
+
+      // Auto-select materials from folder
+      if (parsed.role || parsed.coachingType) {
+        try {
+          const data = await api.matchMaterials(parsed.role, parsed.coachingType, parsed.coachingAgenda);
+          setSelectedMaterials(data.materials.map((m) => m.path || m.name));
+          toast.dismiss(loadingToast);
+          toast.success(`Email parsed! ${data.materials.length} materials auto-selected.`, {
+            duration: 4000,
+          });
+        } catch (err) {
+          console.warn('Error matching materials:', err);
+          toast.dismiss(loadingToast);
+          toast.success('Email parsed! Please review and adjust the fields.', {
+            duration: 4000,
+          });
+        }
+      } else {
+        toast.dismiss(loadingToast);
+        toast.success('Email parsed! Please review and adjust the fields.');
       }
+    } catch (err) {
+      toast.dismiss(loadingToast);
+      toast.error('Failed to parse email. Please check the format.');
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.candidateName || !formData.role || !formData.coachingType) {
-      alert('Please fill in Candidate Name, Role, and Coaching Type');
+      toast.error('Please fill in Candidate Name, Role, and Coaching Type');
       return;
     }
 

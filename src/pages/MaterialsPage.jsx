@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Upload, Trash2, FileText, Search, FolderOpen } from 'lucide-react';
 import { api } from '../services/api';
+import toast from 'react-hot-toast';
 
 export default function MaterialsPage() {
   const [materials, setMaterials] = useState([]);
@@ -49,15 +50,15 @@ export default function MaterialsPage() {
       });
 
       if (response.ok) {
-        alert(`Successfully uploaded ${files.length} file(s)!`);
+        toast.success(`Successfully uploaded ${files.length} file(s)!`);
         loadMaterials();
       } else {
         const error = await response.json();
-        alert(`Upload failed: ${error.error || 'Unknown error'}`);
+        toast.error(`Upload failed: ${error.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error('Upload error:', err);
-      alert('Upload failed: ' + err.message);
+      toast.error('Upload failed: ' + err.message);
     } finally {
       setUploading(false);
       e.target.value = ''; // Reset input
@@ -65,10 +66,42 @@ export default function MaterialsPage() {
   };
 
   const handleDelete = async (filePath) => {
-    if (!confirm(`Delete "${filePath}"? This will remove it from the materials folder.`)) {
-      return;
-    }
+    const confirmed = await new Promise((resolve) => {
+      toast(
+        (t) => (
+          <div className="flex flex-col gap-2">
+            <p className="font-semibold">Delete "{filePath}"?</p>
+            <p className="text-sm text-gray-600">This will remove it from the materials folder.</p>
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  resolve(true);
+                }}
+                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => {
+                  toast.dismiss(t.id);
+                  resolve(false);
+                }}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        ),
+        { duration: Infinity }
+      );
+    });
 
+    if (!confirmed) return;
+
+    const loadingToast = toast.loading('Deleting file...');
+    
     try {
       const response = await fetch('/api/materials/delete', {
         method: 'POST',
@@ -77,15 +110,18 @@ export default function MaterialsPage() {
       });
 
       if (response.ok) {
-        alert('File deleted successfully!');
+        toast.dismiss(loadingToast);
+        toast.success('File deleted successfully!');
         loadMaterials();
       } else {
         const error = await response.json();
-        alert(`Delete failed: ${error.error || 'Unknown error'}`);
+        toast.dismiss(loadingToast);
+        toast.error(`Delete failed: ${error.error || 'Unknown error'}`);
       }
     } catch (err) {
       console.error('Delete error:', err);
-      alert('Delete failed: ' + err.message);
+      toast.dismiss(loadingToast);
+      toast.error('Delete failed: ' + err.message);
     }
   };
 

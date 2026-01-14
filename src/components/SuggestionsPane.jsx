@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSessionStore } from '../store/useSessionStore';
 import { api } from '../services/api';
 import { Sparkles } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function SuggestionsPane() {
   const { transcriptMessages } = useSessionStore();
@@ -20,17 +21,22 @@ export default function SuggestionsPane() {
   const handleGetSuggestions = async () => {
     const transcript = getTranscriptText().trim();
     if (!transcript) {
-      alert('Please add transcript text first');
+      toast.error('Please add transcript text first');
       return;
     }
 
     setLoading(true);
+    const loadingToast = toast.loading('Generating suggestions...');
+    
     try {
       const data = await api.getSuggestions(transcript);
       setSuggestions(data);
+      toast.dismiss(loadingToast);
+      toast.success('Suggestions generated!');
     } catch (err) {
       console.error('Error getting suggestions:', err);
-      alert('Failed to get suggestions: ' + err.message);
+      toast.dismiss(loadingToast);
+      toast.error('Failed to get suggestions: ' + err.message);
     } finally {
       setLoading(false);
     }
