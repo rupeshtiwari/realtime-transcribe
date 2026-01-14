@@ -28,6 +28,9 @@ export const ThemeProvider = ({ children }) => {
   });
 
   useEffect(() => {
+    // Set data-theme attribute for CSS
+    document.documentElement.setAttribute('data-theme', actualMode);
+    
     // Listen for system theme changes
     if (themeMode === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -40,7 +43,7 @@ export const ThemeProvider = ({ children }) => {
     } else {
       setActualMode(themeMode);
     }
-  }, [themeMode]);
+  }, [themeMode, actualMode]);
 
   const changeTheme = (mode) => {
     setThemeMode(mode);

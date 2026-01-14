@@ -40,22 +40,34 @@ export default function HomePage() {
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 h-full flex flex-col">
-        {/* Quick Start Banner */}
-        <div className="mb-3 p-2 bg-primary/10 border-l-4 border-primary rounded-lg flex-shrink-0">
-          <p className="text-xs text-text">
-            <strong>Quick Start:</strong> Click "Start Session" → Fill form → Share tab audio → Start coaching!{' '}
-            <a href="/help" className="text-primary underline">
-              📖 Full Help Guide
-            </a>
-          </p>
-        </div>
+    <div className="h-full w-full overflow-hidden">
+      {/* Session Modal */}
+      {showSessionModal && (
+        <SessionModal
+          onClose={() => setShowSessionModal(false)}
+          onStart={handleStartSession}
+        />
+      )}
 
-        {/* Main Grid - Full height */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 flex-1 min-h-0">
-          {/* Transcript Pane - Takes 2 columns on large screens */}
-          <div className="lg:col-span-2 min-h-0 flex flex-col">
+      {/* Modern Layout Container */}
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 h-full flex flex-col">
+        {/* Quick Start Banner - Modern design */}
+        {!currentSession && (
+          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200/50 flex-shrink-0 backdrop-blur-sm">
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              <strong className="font-semibold text-indigo-600 dark:text-indigo-400">Quick Start:</strong>{' '}
+              Click "Start Session" → Fill form → Share tab audio → Start coaching!{' '}
+              <a href="/help" className="text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                📖 Full Help Guide
+              </a>
+            </p>
+          </div>
+        )}
+
+        {/* Main Grid - Modern spacing */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
+          {/* Transcript Pane - Takes 7 columns on large screens */}
+          <div className="lg:col-span-7 min-h-0 flex flex-col">
             <TranscriptPane
               isRecording={isRecording}
               status={status}
@@ -71,8 +83,8 @@ export default function HomePage() {
             />
           </div>
 
-          {/* Right Column - Suggestions, Analysis, Assistant */}
-          <div className="space-y-4 min-h-0 flex flex-col">
+          {/* Right Column - Suggestions, Analysis, Assistant - 5 columns */}
+          <div className="lg:col-span-5 space-y-6 min-h-0 flex flex-col">
             <div className="flex-1 min-h-0">
               <SuggestionsPane />
             </div>
@@ -84,14 +96,6 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-
-        {/* Session Modal */}
-        {showSessionModal && (
-          <SessionModal
-            onClose={() => setShowSessionModal(false)}
-            onStart={handleStartSession}
-          />
-        )}
       </div>
     </div>
   );
