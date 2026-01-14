@@ -24,30 +24,38 @@ A real-time transcription and AI coaching assistant for mentoring sessions. Buil
   - `gpt-4o-realtime-preview` for transcription
   - `gpt-4o-mini` for suggestions and analysis
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 realtime-transcribe/
-├── src/                    # React application (new)
-│   ├── components/         # React components
-│   ├── hooks/              # Custom React hooks
-│   ├── App.jsx             # Main React app
-│   └── main.jsx            # React entry point
-├── public/                 # Static files and legacy app
-│   ├── index.html          # Main HTML (legacy)
-│   ├── app.js              # Legacy JavaScript app
-│   ├── sessions.html       # Session library page
-│   ├── sessions.js         # Session library logic
-│   ├── help.html           # Help documentation
-│   ├── styles.css          # Global styles
-│   ├── manifest.json       # PWA manifest
-│   └── sw.js               # Service worker
-├── data/                   # Data storage
-│   └── sessions/           # Session files (user data)
-├── server.js               # Express backend server
-├── vite.config.js          # Vite configuration
-├── package.json            # Dependencies
-└── README.md               # This file
+├── docs/                    # 📚 Documentation
+│   ├── COST_OPTIMIZATION_STRATEGY.md
+│   ├── SETUP_ASSISTANT.md
+│   ├── FOLDER_STRUCTURE.md
+│   └── ... (all documentation files)
+├── src/                     # ⚛️ React Application
+│   ├── components/          # React components
+│   │   ├── common/          # Shared components
+│   │   └── features/        # Feature components
+│   ├── pages/               # Page components
+│   ├── hooks/               # Custom React hooks
+│   ├── store/               # State management (Zustand)
+│   ├── services/            # API services
+│   ├── utils/               # Utility functions
+│   ├── theme/               # Material UI themes
+│   └── App.jsx              # Main React app
+├── public/                  # 📄 Static Files & Legacy App
+│   ├── index.html           # Legacy HTML entry
+│   ├── app.js               # Legacy JavaScript
+│   ├── manifest.json        # PWA manifest
+│   └── sw.js                # Service worker
+├── data/                    # 💾 Data Storage
+│   ├── sessions/            # Session files (user data)
+│   └── Mentoring Materials/ # Coaching materials
+├── server.js                # 🖥️ Express Backend
+├── vite.config.mjs          # ⚡ Vite Configuration
+├── package.json             # 📦 Dependencies
+└── README.md                # 📖 This file
 ```
 
 ## Setup
@@ -171,9 +179,19 @@ To enable Google Drive save:
 
 ### Project Structure
 
-- **Legacy App**: `public/` folder contains the original vanilla JS implementation (fully functional)
-- **React App**: `src/` folder contains the new React implementation (in progress)
-- **Backend**: `server.js` handles API endpoints and serves static files
+- **📚 Documentation**: `docs/` folder contains all documentation files
+- **⚛️ React App**: `src/` folder contains the React implementation
+- **📄 Legacy App**: `public/` folder contains the original vanilla JS implementation (fully functional)
+- **🖥️ Backend**: `server.js` handles API endpoints and serves static files
+- **💾 Data**: `data/` folder contains user sessions and mentoring materials
+
+### Documentation
+
+All documentation is in the `docs/` folder:
+- Cost optimization guides
+- Setup instructions
+- Architecture documentation
+- Migration notes
 
 ### Key Files
 
