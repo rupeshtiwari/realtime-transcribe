@@ -1,21 +1,34 @@
 {
   "name": "Coach Copilot - Realtime Transcription",
-  "short_name": "Coach Copilot",
-  "description": "Real-time transcription and AI coaching assistant",
+  "short_name": "CoachCopilot",
+  "description": "Real-time transcription and AI coaching assistant for mentoring sessions",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#f6f7fb",
   "theme_color": "#2d62ff",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ],
-  "categories": ["education", "productivity"],
+  "categories": ["education", "productivity", "business"],
   "screenshots": [],
   "shortcuts": [
     {
@@ -24,6 +37,15 @@
       "description": "Start a new coaching session",
       "url": "/?action=new",
       "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "View Sessions",
+      "short_name": "Sessions",
+      "description": "View your coaching sessions library",
+      "url": "/sessions.html",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any" }]
     }
-  ]
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
 }
