@@ -42,6 +42,11 @@ data/sessions/.DS_Store
 # Keep sessions folder structure
 !data/sessions/.gitkeep
 
+# Large files in mentoring materials (too big for GitHub)
+data/Mentoring Materials/**/*.zip
+data/Mentoring Materials/**/*.pages
+**/*.zip
+
 # Temporary files
 *.tmp
 *.temp
