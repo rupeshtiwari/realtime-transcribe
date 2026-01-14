@@ -1451,13 +1451,37 @@ function matchMaterials(role, coachingType, agenda) {
   return matches.sort((a, b) => b.score - a.score).slice(0, 5).map(m => m.material);
 }
 
-// Auto-select materials when parsing email
-function autoSelectMaterials(role, coachingType, agenda) {
+// Auto-select materials when parsing email - now uses server-side matching from folder
+async function autoSelectMaterials(role, coachingType, agenda) {
   if (!role && !coachingType) return;
   
-  const matched = matchMaterials(role, coachingType, agenda);
-  selectedMaterials = matched.map(m => m.id || m.name);
-  renderSelectedMaterials();
+  try {
+    // Call server to match materials from data/Mentoring Materials folder
+    const response = await fetch("/api/materials/match", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ role, coachingType, agenda }),
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      // Store matched materials (from folder)
+      selectedMaterials = data.materials.map(m => m.path || m.name);
+      renderSelectedMaterials();
+      console.log(`Auto-selected ${data.materials.length} materials from folder`);
+    } else {
+      // Fallback to local library matching
+      const matched = matchMaterials(role, coachingType, agenda);
+      selectedMaterials = matched.map(m => m.id || m.name);
+      renderSelectedMaterials();
+    }
+  } catch (err) {
+    console.warn("Error matching materials from folder, using local library:", err);
+    // Fallback to local library
+    const matched = matchMaterials(role, coachingType, agenda);
+    selectedMaterials = matched.map(m => m.id || m.name);
+    renderSelectedMaterials();
+  }
 }
 
 // Render selected materials
