@@ -34,54 +34,110 @@ export default function Layout({ children }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo & Title */}
-            <div className="flex items-center gap-4">
-              <Link to="/" className="flex items-center gap-2">
-                <div className="text-xs uppercase tracking-wider text-text-secondary">Coach Copilot</div>
-                <div className="text-lg font-semibold text-text">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+                <Box sx={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'text.secondary' }}>
+                  Coach Copilot
+                </Box>
+                <Box sx={{ fontSize: '1.125rem', fontWeight: 600, color: 'text.primary' }}>
                   {currentSession?.name || 'No active session'}
-                </div>
+                </Box>
               </Link>
-            </div>
+            </Box>
 
             {/* Navigation */}
-            <nav className="flex items-center gap-2">
+            <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Link
                 to="/help"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname === '/help'
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-text-secondary hover:bg-gray-100'
-                }`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  color: location.pathname === '/help' ? 'primary.main' : 'text.secondary',
+                  backgroundColor: location.pathname === '/help' ? 'primary.light' : 'transparent',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  if (location.pathname !== '/help') {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (location.pathname !== '/help') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
               >
-                <HelpCircle className="w-4 h-4" />
+                <HelpCircle size={16} />
                 Help
               </Link>
               <Link
                 to="/sessions"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname === '/sessions'
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-text-secondary hover:bg-gray-100'
-                }`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  color: location.pathname === '/sessions' ? 'primary.main' : 'text.secondary',
+                  backgroundColor: location.pathname === '/sessions' ? 'primary.light' : 'transparent',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  if (location.pathname !== '/sessions') {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (location.pathname !== '/sessions') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
               >
-                <BookOpen className="w-4 h-4" />
+                <BookOpen size={16} />
                 Sessions
               </Link>
               <Link
                 to="/materials"
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  location.pathname === '/materials'
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-text-secondary hover:bg-gray-100'
-                }`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  padding: '8px 12px',
+                  borderRadius: '8px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  textDecoration: 'none',
+                  color: location.pathname === '/materials' ? 'primary.main' : 'text.secondary',
+                  backgroundColor: location.pathname === '/materials' ? 'primary.light' : 'transparent',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  if (location.pathname !== '/materials') {
+                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (location.pathname !== '/materials') {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
               >
-                <FolderOpen className="w-4 h-4" />
+                <FolderOpen size={16} />
                 Materials
               </Link>
-            </nav>
+            </Box>
 
             {/* Action Buttons */}
-            <div className="flex items-center gap-2">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <ThemeToggle />
               {currentSession && (
                 <>
@@ -97,9 +153,9 @@ export default function Layout({ children }) {
                   </button>
                 </>
               )}
-            </div>
-          </div>
-        </div>
+            </Box>
+          </Box>
+        </Box>
       </Box>
 
       {/* Main Content - Fixed height to prevent page scroll */}

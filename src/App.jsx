@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useThemeMode } from './context/ThemeContext';
 import HomePage from './pages/HomePage';
 import SessionsPage from './pages/SessionsPage';
 import HelpPage from './pages/HelpPage';
@@ -17,6 +17,42 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Toast wrapper to use theme
+function ToastWrapper() {
+  const { actualMode } = useThemeMode();
+  const isDark = actualMode === 'dark';
+  
+  return (
+    <Toaster
+      position="top-right"
+      toastOptions={{
+        duration: 3000,
+        style: {
+          background: isDark ? '#1a1f2e' : '#ffffff',
+          color: isDark ? '#f6f7fb' : '#0b1220',
+          borderRadius: '12px',
+          padding: '12px 16px',
+          boxShadow: isDark 
+            ? '0 4px 12px rgba(0, 0, 0, 0.3)' 
+            : '0 4px 12px rgba(0, 0, 0, 0.15)',
+        },
+        success: {
+          iconTheme: {
+            primary: '#10b981',
+            secondary: '#fff',
+          },
+        },
+        error: {
+          iconTheme: {
+            primary: '#ef4444',
+            secondary: '#fff',
+          },
+        },
+      }}
+    />
+  );
+}
 
 function App() {
   return (
