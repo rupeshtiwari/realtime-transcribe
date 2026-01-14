@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useSessionStore } from '../store/useSessionStore';
-import { BookOpen, HelpCircle } from 'lucide-react';
+import { BookOpen, HelpCircle, FolderOpen } from 'lucide-react';
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -45,6 +45,17 @@ export default function Layout({ children }) {
               >
                 <BookOpen className="w-4 h-4" />
                 Sessions
+              </Link>
+              <Link
+                to="/materials"
+                className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  location.pathname === '/materials'
+                    ? 'bg-primary/10 text-primary'
+                    : 'text-text-secondary hover:bg-gray-100'
+                }`}
+              >
+                <FolderOpen className="w-4 h-4" />
+                Materials
               </Link>
             </nav>
 

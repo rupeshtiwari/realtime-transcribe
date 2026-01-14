@@ -187,6 +187,82 @@ function getContentType(fileName) {
   return types[ext] || "application/octet-stream";
 }
 
+// List all materials from folder
+app.get("/api/materials/list", async (req, res) => {
+  try {
+    const materialsPath = path.join(__dirname, "data", "Mentoring Materials");
+    const materials = await listAllMaterials(materialsPath);
+    res.json({ materials });
+  } catch (err) {
+    console.error("Error listing materials:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Upload materials to folder
+app.post("/api/materials/upload", async (req, res) => {
+  try {
+    const multer = require("multer");
+    const upload = multer({ 
+      dest: path.join(__dirname, "data", "Mentoring Materials", "uploads"),
+      limits: { fileSize: 50 * 1024 * 1024 }, // 50MB max
+    });
+    
+    upload.array("files", 10)(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ error: err.message });
+      }
+      
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: "No files uploaded" });
+      }
+      
+      const materialsPath = path.join(__dirname, "data", "Mentoring Materials");
+      const uploadedFiles = [];
+      
+      for (const file of req.files) {
+        const targetPath = path.join(materialsPath, file.originalname);
+        await fs.move(file.path, targetPath, { overwrite: true });
+        uploadedFiles.push(file.originalname);
+      }
+      
+      res.json({ 
+        success: true,
+        files: uploadedFiles,
+        message: `Uploaded ${uploadedFiles.length} file(s)`
+      });
+    });
+  } catch (err) {
+    console.error("Error uploading materials:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete material from folder
+app.post("/api/materials/delete", async (req, res) => {
+  const { path: filePath } = req.body;
+  
+  if (!filePath) {
+    return res.status(400).json({ error: "File path is required" });
+  }
+  
+  try {
+    const materialsPath = path.join(__dirname, "data", "Mentoring Materials");
+    const fullPath = path.join(materialsPath, filePath);
+    
+    // Security: ensure path is within materials folder
+    if (!fullPath.startsWith(materialsPath)) {
+      return res.status(400).json({ error: "Invalid file path" });
+    }
+    
+    await fs.remove(fullPath);
+    res.json({ success: true, message: "File deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting material:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Auto-select materials from folder based on session details
 app.post("/api/materials/match", async (req, res) => {
   const { role, coachingType, agenda } = req.body;
@@ -204,6 +280,39 @@ app.post("/api/materials/match", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// List all materials in folder
+async function listAllMaterials(materialsPath) {
+  const materials = [];
+  
+  async function scanDirectory(dir, relativePath = "") {
+    if (!await fs.pathExists(dir)) {
+      return [];
+    }
+    
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      const relPath = path.join(relativePath, entry.name);
+      
+      if (entry.isDirectory()) {
+        await scanDirectory(fullPath, relPath);
+      } else {
+        const stats = await fs.stat(fullPath);
+        materials.push({
+          name: entry.name,
+          path: relPath,
+          size: stats.size,
+          modified: stats.mtime,
+        });
+      }
+    }
+  }
+  
+  await scanDirectory(materialsPath);
+  return materials.sort((a, b) => a.name.localeCompare(b.name));
+}
 
 // Find matching materials in folder
 async function findMatchingMaterials(materialsPath, role, coachingType, agenda) {
