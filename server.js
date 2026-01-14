@@ -59,11 +59,11 @@ async function initializeAssistant() {
 Use these materials to provide accurate, context-aware coaching advice. Reference specific frameworks and rubrics when relevant.`,
         model: SUGGESTION_MODEL,
         tools: [{ type: "file_search" }],
-        tool_resources: {
+        tool_resources: fileIds.length > 0 ? {
           file_search: {
-            vector_store_ids: fileIds.length > 0 ? [await createVectorStore(fileIds)] : [],
+            vector_store_ids: [await createVectorStore(fileIds)],
           },
-        },
+        } : undefined,
       }),
     });
 
