@@ -1,21 +1,25 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { useSessionStore } from '../store/useSessionStore';
 
 export function useRealtimeTranscription() {
   const [isRecording, setIsRecording] = useState(false);
-  const [transcriptMessages, setTranscriptMessages] = useState([]);
   const [status, setStatus] = useState({ text: 'Idle', isActive: false });
-  const [currentSpeaker, setCurrentSpeaker] = useState('client');
+  const [error, setError] = useState(null);
   
   const pcRef = useRef(null);
   const dcRef = useRef(null);
   const localStreamRef = useRef(null);
+  const clientSecretRef = useRef(null);
+  
+  const { addTranscriptMessage, setCurrentSpeaker, currentSpeaker } = useSessionStore();
 
   const startTranscription = useCallback(async () => {
     setIsRecording(true);
     setStatus({ text: 'Select tab to capture…', isActive: false });
+    setError(null);
 
     try {
-      // Capture tab audio
+      // 1. Capture tab audio
       const displayStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
         audio: true,
@@ -23,37 +27,43 @@ export function useRealtimeTranscription() {
 
       const audioTracks = displayStream.getAudioTracks();
       if (!audioTracks.length) {
-        alert('No audio track captured. Please select a tab and enable "Share tab audio".');
-        setIsRecording(false);
-        return;
+        throw new Error(
+          'No audio track captured.\n\n' +
+          'In Chrome, you must:\n' +
+          '1. Pick a TAB (not "Entire Screen")\n' +
+          '2. Enable "Share tab audio" checkbox\n\n' +
+          'Please try again.'
+        );
       }
 
+      // Create audio-only stream
       const audioOnlyStream = new MediaStream([audioTracks[0]]);
       localStreamRef.current = audioOnlyStream;
 
-      // Create WebRTC connection
+      // 2. Create WebRTC connection
       const pc = new RTCPeerConnection({
         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
       });
       pcRef.current = pc;
 
-      // Add audio track
+      // Add audio tracks
       audioOnlyStream.getTracks().forEach((track) => {
         pc.addTrack(track, audioOnlyStream);
       });
 
-      // Create data channel for Realtime API
+      // 3. Create data channel for Realtime API
       const dc = pc.createDataChannel('realtime', { ordered: true });
       dcRef.current = dc;
 
-      // Get session token from server
+      // 4. Get session token from server
       const sessionResp = await fetch('/api/session', { method: 'POST' });
       if (!sessionResp.ok) {
         throw new Error('Failed to create session');
       }
       const { client_secret } = await sessionResp.json();
+      clientSecretRef.current = client_secret;
 
-      // Handle data channel messages
+      // 5. Handle data channel messages
       dc.onmessage = (event) => {
         try {
           const evt = JSON.parse(event.data);
@@ -63,7 +73,12 @@ export function useRealtimeTranscription() {
         }
       };
 
-      // Connect to OpenAI Realtime API
+      dc.onerror = (err) => {
+        console.error('Data channel error:', err);
+        setError('Data channel error');
+      };
+
+      // 6. Create offer and connect to OpenAI Realtime API
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
@@ -100,19 +115,38 @@ export function useRealtimeTranscription() {
       });
 
       if (!sdpResp.ok) {
-        throw new Error('Failed to connect to Realtime API');
+        const errorData = await sdpResp.json();
+        throw new Error(`Failed to connect: ${JSON.stringify(errorData)}`);
       }
 
       const { sdp: answerSdp } = await sdpResp.json();
       await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
 
+      // 7. Handle connection state
+      pc.onconnectionstatechange = () => {
+        const state = pc.connectionState;
+        if (state === 'connected') {
+          setStatus({ text: 'Recording…', isActive: true });
+        } else if (state === 'disconnected' || state === 'failed') {
+          setStatus({ text: 'Disconnected', isActive: false });
+          setIsRecording(false);
+        }
+      };
+
       setStatus({ text: 'Recording…', isActive: true });
     } catch (err) {
       console.error('Start error:', err);
+      setError(err.message);
       setStatus({ text: `Error: ${err.message}`, isActive: false });
       setIsRecording(false);
+      
+      // Cleanup on error
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach((track) => track.stop());
+        localStreamRef.current = null;
+      }
     }
-  }, []);
+  }, [addTranscriptMessage, currentSpeaker]);
 
   const stopTranscription = useCallback(() => {
     if (dcRef.current) {
@@ -129,54 +163,59 @@ export function useRealtimeTranscription() {
     }
     setIsRecording(false);
     setStatus({ text: 'Stopped', isActive: false });
+    setError(null);
   }, []);
 
   const toggleSpeaker = useCallback(() => {
-    setCurrentSpeaker((prev) => (prev === 'coach' ? 'client' : 'coach'));
-  }, []);
+    const newSpeaker = currentSpeaker === 'coach' ? 'client' : 'coach';
+    setCurrentSpeaker(newSpeaker);
+  }, [currentSpeaker, setCurrentSpeaker]);
 
-  const handleRealtimeEvent = (evt) => {
+  // Handle Realtime API events
+  const handleRealtimeEvent = useCallback((evt) => {
     if (!evt || typeof evt !== 'object') return;
 
     const type = String(evt.type || '');
 
+    // Handle session updates
     if (type === 'session.updated') {
       const statusText = evt.session?.status || 'Connected';
       setStatus({ text: statusText, isActive: true });
     }
 
+    // Handle transcription events
     if (type === 'conversation.item.input_audio_transcription.completed') {
-      const transcript = evt.item?.input_audio_transcription?.transcript;
-      if (transcript && transcript.trim()) {
-        addTranscriptMessage(transcript.trim(), currentSpeaker);
+      const item = evt.item;
+      if (item?.content) {
+        for (const content of item.content) {
+          if (content.type === 'input_audio_transcription' && content.transcript) {
+            const transcript = content.transcript.trim();
+            if (transcript) {
+              addTranscriptMessage(transcript, currentSpeaker);
+              return;
+            }
+          }
+        }
       }
     }
 
-    if (type === 'response.audio_transcript.delta' || type === 'response.text.delta') {
-      const text = evt.delta || evt.text || '';
-      if (text && text.trim()) {
-        addTranscriptMessage(text.trim(), currentSpeaker);
-      }
+    // Handle incremental updates
+    if (type.includes('transcript') && typeof evt.delta === 'string' && evt.delta.trim()) {
+      addTranscriptMessage(evt.delta.trim(), currentSpeaker);
     }
-  };
+  }, [addTranscriptMessage, currentSpeaker]);
 
-  const addTranscriptMessage = (text, speaker) => {
-    setTranscriptMessages((prev) => [
-      ...prev,
-      {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        text,
-        speaker,
-        timestamp: new Date(),
-      },
-    ]);
-  };
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopTranscription();
+    };
+  }, [stopTranscription]);
 
   return {
     isRecording,
-    transcriptMessages,
     status,
-    currentSpeaker,
+    error,
     startTranscription,
     stopTranscription,
     toggleSpeaker,

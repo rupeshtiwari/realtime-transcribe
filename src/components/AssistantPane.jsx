@@ -1,89 +1,141 @@
-import React, { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useSessionStore } from '../store/useSessionStore';
+import { api } from '../services/api';
+import { Bot, Send, Loader2 } from 'lucide-react';
 
-function AssistantPane({ currentSession, transcriptMessages }) {
-  const [messages, setMessages] = useState([
-    {
-      id: 'system_welcome',
-      text: 'Ask me anything about the conversation, candidate, or coaching strategies. I work offline too!',
-      role: 'system',
-      timestamp: new Date(),
-    },
-  ]);
+export default function AssistantPane() {
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef(null);
+  const { assistantMessages, addAssistantMessage, currentSession, transcriptMessages } = useSessionStore();
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [assistantMessages]);
+
+  const getTranscriptText = () => {
+    return transcriptMessages
+      .map((msg) => {
+        const speaker = msg.speaker === 'coach' ? 'Coach' : 'Client';
+        return `${speaker}: ${msg.text}`;
+      })
+      .join('\n');
+  };
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || loading) return;
 
-    const userMessage = {
-      id: `user_${Date.now()}`,
-      text: input.trim(),
-      role: 'user',
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    const question = input.trim();
     setInput('');
+    addAssistantMessage(question, 'user');
 
-    // TODO: Call assistant API
-    const loadingMessage = {
-      id: `loading_${Date.now()}`,
-      text: 'Thinking...',
-      role: 'assistant',
-      timestamp: new Date(),
-      loading: true,
-    };
+    setLoading(true);
+    try {
+      const transcript = getTranscriptText();
+      const sessionContext = currentSession
+        ? `
+Session: ${currentSession.name}
+Candidate: ${currentSession.candidateName}
+Role: ${currentSession.role}
+Type: ${currentSession.coachingType}
+Agenda: ${currentSession.coachingAgenda || 'N/A'}
+`
+        : '';
 
-    setMessages((prev) => [...prev, loadingMessage]);
+      const context = `${sessionContext}
 
-    // Simulate API call
-    setTimeout(() => {
-      setMessages((prev) => {
-        const filtered = prev.filter((m) => !m.loading);
-        return [
-          ...filtered,
-          {
-            id: `assistant_${Date.now()}`,
-            text: 'This is a placeholder response. Assistant API integration coming soon!',
-            role: 'assistant',
-            timestamp: new Date(),
-          },
-        ];
-      });
-    }, 1000);
+Current Transcript:
+${transcript || 'No transcript yet.'}
+
+Question: ${question}
+
+Please provide a helpful answer based on the conversation context. Be concise and actionable.`;
+
+      const data = await api.askAssistant(question, context, transcript);
+      addAssistantMessage(data.answer || "I couldn't generate a response. Please try again.", 'assistant');
+    } catch (err) {
+      console.error('Assistant error:', err);
+      addAssistantMessage(`Error: ${err.message}. You can still ask questions offline using the transcript.`, 'assistant');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <section className="pane pane--assistant">
-      <h2 className="pane__title">🤖 Coach Assistant</h2>
-      <div className="assistant-chat">
-        <div className="assistant-chat__messages">
-          {messages.map((msg) => (
-            <div key={msg.id} className={`assistant-message assistant-message--${msg.role}`}>
-              <div className="assistant-message__bubble">{msg.text}</div>
+    <div className="pane flex flex-col">
+      <h2 className="pane__title flex items-center gap-2 mb-4">
+        <Bot className="w-4 h-4" />
+        Coach Assistant
+      </h2>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[300px] space-y-3 mb-4">
+        {assistantMessages.map((msg) => {
+          const isUser = msg.role === 'user';
+          const isSystem = msg.role === 'system';
+
+          return (
+            <div
+              key={msg.id}
+              className={`flex gap-2 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+            >
+              <div
+                className={`px-3 py-2 rounded-lg text-sm max-w-[85%] ${
+                  isUser
+                    ? 'bg-primary text-white'
+                    : isSystem
+                    ? 'bg-gray-100 text-text-secondary'
+                    : 'bg-white border border-border text-text'
+                }`}
+              >
+                {msg.loading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Thinking...</span>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap">{msg.text}</p>
+                )}
+              </div>
             </div>
-          ))}
-        </div>
-        <div className="assistant-chat__input">
-          <input
-            type="text"
-            className="assistant-chat__input-field"
-            placeholder="Ask a question..."
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-          />
-          <button className="assistant-chat__send-btn" disabled={!input.trim()} onClick={handleSend}>
-            Send
-          </button>
-        </div>
+          );
+        })}
+        <div ref={messagesEndRef} />
       </div>
-    </section>
+
+      {/* Input */}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
+          placeholder="Ask a question..."
+          className="flex-1 px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+          disabled={loading}
+        />
+        <button
+          onClick={handleSend}
+          disabled={!input.trim() || loading}
+          className="btn btn--primary flex items-center gap-2"
+        >
+          {loading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Send className="w-4 h-4" />
+          )}
+          Send
+        </button>
+      </div>
+    </div>
   );
 }
-
-export default AssistantPane;

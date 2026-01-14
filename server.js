@@ -16,7 +16,9 @@ const SUGGESTION_MODEL = process.env.SUGGESTION_MODEL || "gpt-4o-mini";
 let ASSISTANT_ID = process.env.OPENAI_ASSISTANT_ID || null;
 let OPENAI_FILE_IDS = {}; // Map of file paths to OpenAI file IDs
 
-app.use(express.static("public"));
+// Serve React app from dist, fallback to public for legacy files
+app.use(express.static("dist"));
+app.use(express.static("public")); // Fallback for legacy files (help.html, sessions.html, etc.)
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });

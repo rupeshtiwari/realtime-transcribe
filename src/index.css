@@ -1,14 +1,76 @@
-/* Import existing styles */
-@import '../public/styles.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-  margin: 0;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
-    "Apple Color Emoji", "Segoe UI Emoji";
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  body {
+    @apply m-0 font-sans text-text bg-background antialiased;
+    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+      "Apple Color Emoji", "Segoe UI Emoji";
+  }
+
+  #root {
+    @apply min-h-screen;
+  }
 }
 
-#root {
-  min-height: 100vh;
+@layer components {
+  .btn {
+    @apply px-4 py-2.5 rounded-lg font-semibold cursor-pointer transition-all;
+    @apply border border-border bg-surface text-text;
+    @apply hover:bg-gray-50 active:scale-[0.98];
+    @apply disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100;
+    min-height: 44px; /* Touch-friendly */
+  }
+
+  .btn--primary {
+    @apply bg-primary text-white border-primary;
+    @apply hover:bg-primary-light active:bg-primary-dark;
+  }
+
+  .btn--small {
+    @apply px-3 py-2 text-sm;
+    min-height: 36px;
+  }
+
+  .btn--danger {
+    @apply bg-red-500 text-white border-red-500;
+    @apply hover:bg-red-600;
+  }
+
+  .pane {
+    @apply bg-surface border border-border rounded-xl p-4 flex flex-col;
+    min-height: 220px;
+  }
+
+  .pane__title {
+    @apply text-base font-semibold m-0 mb-2;
+  }
+
+  .card {
+    @apply bg-surface border border-border rounded-xl p-5;
+    @apply transition-all hover:shadow-md hover:-translate-y-0.5;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400;
 }
