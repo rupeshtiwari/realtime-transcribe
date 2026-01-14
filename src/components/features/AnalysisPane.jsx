@@ -1,16 +1,9 @@
 import { useState } from 'react';
-import { useSessionStore } from '../store/useSessionStore';
-import { api } from '../services/api';
+import { useSessionStore } from '../../store/useSessionStore';
+import { api } from '../../services/api';
 import { FileText, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
-const ANALYSIS_TYPES = [
-  { id: 'followup', label: 'Follow-up Questions', endpoint: 'followup' },
-  { id: 'revised-story', label: 'Revised Story', endpoint: 'revised-story' },
-  { id: 'feedback-summary', label: 'Feedback Summary', endpoint: 'feedback-summary' },
-  { id: 'interview-prep', label: 'Interview Prep', endpoint: 'interview-prep' },
-  { id: 'full', label: 'Full Analysis', endpoint: 'full' },
-];
+import { ANALYSIS_TYPES } from '../../constants';
 
 export default function AnalysisPane() {
   const { transcriptMessages, analysisNotebook, addAnalysisResult } = useSessionStore();
@@ -74,8 +67,8 @@ export default function AnalysisPane() {
         ))}
       </div>
 
-      {/* Analysis Results */}
-      <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[400px]">
+      {/* Analysis Results - Custom scrollbar */}
+      <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[400px] scrollbar-hide">
         {analysisNotebook.length === 0 ? (
           <div className="text-center text-text-secondary py-8 text-sm">
             Select an analysis option above. All results will be saved here.

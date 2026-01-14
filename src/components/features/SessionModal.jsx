@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useMaterialsStore } from '../store/useMaterialsStore';
-import { parseEmail, autoGenerateSessionName } from '../utils/emailParser';
-import { api } from '../services/api';
+import { useMaterialsStore } from '../../store/useMaterialsStore';
+import { parseEmail, autoGenerateSessionName } from '../../utils/emailParser';
+import { api } from '../../services/api';
 import { X } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { COACHING_TYPES } from '../../constants';
 
 export default function SessionModal({ onClose, onStart }) {
   const [formData, setFormData] = useState({
@@ -180,11 +181,11 @@ export default function SessionModal({ onClose, onStart }) {
               className="w-full px-4 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="">Select type...</option>
-              <option value="system-design">System Design Interview</option>
-              <option value="behavioral">Behavioral Interview</option>
-              <option value="technical">Technical Interview</option>
-              <option value="mock-interview">Mock Interview</option>
-              <option value="resume-review">Resume Review</option>
+              {COACHING_TYPES.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
             </select>
           </div>
 

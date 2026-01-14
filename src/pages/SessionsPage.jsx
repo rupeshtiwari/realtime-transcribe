@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { sessionStorage } from '../utils/sessionStorage';
-import { BookOpen, Search, Filter, Trash2, Download, Eye, X } from 'lucide-react';
+import { BookOpen, Search, Trash2, Download, Eye, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function SessionsPage() {

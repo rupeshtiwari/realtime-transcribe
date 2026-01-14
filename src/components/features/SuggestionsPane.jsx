@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useSessionStore } from '../store/useSessionStore';
-import { api } from '../services/api';
+import { useSessionStore } from '../../store/useSessionStore';
+import { api } from '../../services/api';
 import { Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Upload, Trash2, FileText, Search, FolderOpen } from 'lucide-react';
 import { api } from '../services/api';
 import toast from 'react-hot-toast';
+import { SUPPORTED_FILE_TYPES, MAX_FILE_SIZE } from '../constants';
 
 export default function MaterialsPage() {
   const [materials, setMaterials] = useState([]);

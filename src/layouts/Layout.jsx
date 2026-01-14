@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useSessionStore } from '../store/useSessionStore';
 import { BookOpen, HelpCircle, FolderOpen } from 'lucide-react';
 import { useThemeMode } from '../context/ThemeContext';
-import ThemeToggle from '../components/ThemeToggle';
+import ThemeToggle from '../components/common/ThemeToggle';
 import { Box, Button } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
