@@ -40,7 +40,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="h-full w-full overflow-hidden relative">
+    <div className="h-full w-full overflow-hidden relative flex flex-col">
       {/* Session Modal */}
       {showSessionModal && (
         <SessionModal
@@ -49,11 +49,11 @@ export default function HomePage() {
         />
       )}
 
-      {/* Modern Layout Container */}
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 h-full flex flex-col">
+      {/* Modern Layout Container - Like Notion workspace */}
+      <div className="flex-1 min-h-0 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 w-full h-full flex flex-col overflow-hidden">
         {/* Quick Start Banner - Modern design */}
         {!currentSession && (
-          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200/50 flex-shrink-0 backdrop-blur-sm">
+          <div className="mb-4 p-4 rounded-2xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-200/50 flex-shrink-0 backdrop-blur-sm glass">
             <p className="text-sm text-slate-700 dark:text-slate-300">
               <strong className="font-semibold text-indigo-600 dark:text-indigo-400">Quick Start:</strong>{' '}
               Click "Start Session" → Fill form → Share tab audio → Start coaching!{' '}
@@ -64,10 +64,10 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Main Grid - Modern spacing */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
+        {/* Main Grid - Modern spacing like Linear */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0 overflow-hidden">
           {/* Transcript Pane - Takes 7 columns on large screens */}
-          <div className="lg:col-span-7 min-h-0 flex flex-col">
+          <div className="lg:col-span-7 min-h-0 flex flex-col overflow-hidden">
             <TranscriptPane
               isRecording={isRecording}
               status={status}
@@ -84,14 +84,14 @@ export default function HomePage() {
           </div>
 
           {/* Right Column - Suggestions, Analysis, Assistant - 5 columns */}
-          <div className="lg:col-span-5 space-y-6 min-h-0 flex flex-col">
-            <div className="flex-1 min-h-0">
+          <div className="lg:col-span-5 space-y-6 min-h-0 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <SuggestionsPane />
             </div>
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <AnalysisPane />
             </div>
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-hidden">
               <AssistantPane />
             </div>
           </div>

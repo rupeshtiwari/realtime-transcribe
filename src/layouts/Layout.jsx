@@ -14,11 +14,16 @@ export default function Layout({ children }) {
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        height: '100vh',
+        width: '100vw',
         bgcolor: 'background.default',
         color: 'text.primary',
-        position: 'relative',
+        position: 'fixed',
+        top: 0,
+        left: 0,
         overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
       {/* Modern gradient background overlay */}
@@ -37,7 +42,7 @@ export default function Layout({ children }) {
         }}
       />
 
-      {/* Header - Modern glassmorphism */}
+      {/* Header - Modern glassmorphism like Notion */}
       <Box
         component="header"
         sx={{
@@ -45,17 +50,18 @@ export default function Layout({ children }) {
           top: 0,
           zIndex: 50,
           background: theme.palette.mode === 'dark'
-            ? 'rgba(30, 41, 59, 0.8)'
-            : 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(20px)',
+            ? 'rgba(30, 41, 59, 0.85)'
+            : 'rgba(255, 255, 255, 0.85)',
+          backdropFilter: 'blur(20px) saturate(180%)',
           borderBottom: '1px solid',
           borderColor: 'divider',
           boxShadow: theme.palette.mode === 'dark'
             ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
             : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          flexShrink: 0,
         }}
       >
-        <Box sx={{ maxWidth: '1400px', mx: 'auto', px: { xs: 3, sm: 4, lg: 6 } }}>
+        <Box sx={{ maxWidth: '1600px', mx: 'auto', px: { xs: 3, sm: 4, lg: 6 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
             {/* Logo & Title - Modern typography */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -95,7 +101,7 @@ export default function Layout({ children }) {
               </Link>
             </Box>
 
-            {/* Navigation - Modern pill buttons */}
+            {/* Navigation - Modern pill buttons like Linear */}
             <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {[
                 { path: '/help', icon: HelpCircle, label: 'Help' },
@@ -188,14 +194,17 @@ export default function Layout({ children }) {
         </Box>
       </Box>
 
-      {/* Main Content - Fixed height, no scrollbars */}
+      {/* Main Content - Fixed height, absolutely no scrollbars */}
       <Box
         component="main"
         sx={{
+          flex: 1,
           height: 'calc(100vh - 72px)',
           overflow: 'hidden',
           position: 'relative',
           zIndex: 1,
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         {children}

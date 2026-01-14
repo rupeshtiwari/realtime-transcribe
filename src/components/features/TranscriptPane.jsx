@@ -145,8 +145,8 @@ export default function TranscriptPane({
         </div>
       </div>
 
-      {/* Transcript List - Virtualized for performance */}
-      <div className="flex-1 min-h-0 relative">
+      {/* Transcript List - Virtualized for performance, no scrollbar */}
+      <div className="flex-1 min-h-0 relative overflow-hidden">
         {transcriptMessages.length === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center text-center text-text-secondary">
             <div>
@@ -155,7 +155,7 @@ export default function TranscriptPane({
             </div>
           </div>
         ) : (
-          <div className="h-full bg-gray-50 rounded-lg overflow-hidden">
+          <div className="h-full bg-gray-50 dark:bg-slate-800/50 rounded-xl overflow-hidden scrollbar-hide">
             <List
               ref={listRef}
               height={Math.max(listHeight, 300)}
@@ -164,9 +164,10 @@ export default function TranscriptPane({
               width="100%"
               onScroll={handleScroll}
               style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: '#cbd5e1 #f1f5f9',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
               }}
+              className="scrollbar-hide"
             >
               {MessageItem}
             </List>

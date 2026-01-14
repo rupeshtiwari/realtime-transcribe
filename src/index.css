@@ -20,11 +20,21 @@
     @apply box-border;
   }
 
+  html {
+    overflow: hidden !important;
+    height: 100vh;
+    width: 100vw;
+  }
+
   body {
     @apply m-0 font-sans antialiased;
     font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
     background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
     color: #0f172a;
+    overflow: hidden !important;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
   }
 
   [data-theme='dark'] body {
@@ -33,13 +43,17 @@
   }
 
   #root {
-    @apply min-h-screen;
-    overflow: hidden;
+    overflow: hidden !important;
+    height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
   }
 }
 
 @layer components {
-  /* Modern Button Styles */
+  /* Modern Button Styles - Inspired by Linear/Notion */
   .btn {
     @apply px-6 py-3 rounded-xl font-semibold cursor-pointer transition-all duration-200;
     @apply border-0;
@@ -85,24 +99,26 @@
     background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
   }
 
-  /* Modern Pane Styles - Glassmorphism */
+  /* Modern Pane Styles - Glassmorphism like Notion */
   .pane {
     @apply rounded-2xl p-6 flex flex-col;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(148, 163, 184, 0.2);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
     min-height: 220px;
     transition: all 0.2s ease;
+    overflow: hidden;
   }
 
   [data-theme='dark'] .pane {
-    background: rgba(30, 41, 59, 0.8);
+    background: rgba(30, 41, 59, 0.9);
     border: 1px solid rgba(148, 163, 184, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   }
 
   .pane:hover {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.12);
   }
 
   .pane__title {
@@ -115,34 +131,34 @@
     color: #f1f5f9;
   }
 
-  /* Modern Card Styles */
+  /* Modern Card Styles - Like Linear cards */
   .card {
     @apply rounded-2xl p-6;
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(148, 163, 184, 0.15);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transition: all 0.2s ease;
   }
 
   [data-theme='dark'] .card {
-    background: rgba(30, 41, 59, 0.9);
+    background: rgba(30, 41, 59, 0.95);
     border: 1px solid rgba(148, 163, 184, 0.1);
   }
 
   .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 12px 24px -4px rgba(0, 0, 0, 0.12);
   }
 
-  /* Modern Input Styles */
+  /* Modern Input Styles - Clean like Notion */
   input[type='text'],
   input[type='email'],
   textarea,
   select {
     @apply px-4 py-3 rounded-xl text-sm transition-all duration-200;
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(148, 163, 184, 0.3);
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.2);
     color: #0f172a;
   }
 
@@ -150,8 +166,8 @@
   [data-theme='dark'] input[type='email'],
   [data-theme='dark'] textarea,
   [data-theme='dark'] select {
-    background: rgba(30, 41, 59, 0.9);
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(148, 163, 184, 0.15);
     color: #f1f5f9;
   }
 
@@ -161,13 +177,21 @@
     outline: none;
     border-color: #6366f1;
     box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: rgba(255, 255, 255, 1);
+  }
+
+  [data-theme='dark'] input:focus,
+  [data-theme='dark'] textarea:focus,
+  [data-theme='dark'] select:focus {
+    background: rgba(30, 41, 59, 1);
   }
 }
 
-/* Modern Scrollbar - Minimalist */
+/* Completely hide scrollbars - Modern app style */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 0px;
+  height: 0px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-track {
@@ -175,38 +199,27 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 3px;
-  transition: background 0.2s;
+  background: transparent;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
+/* Firefox - hide scrollbar */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* Hide scrollbar but keep functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
-}
-
-/* Prevent page scrollbar - modern full-height layout */
-html, body {
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
-  margin: 0;
-  padding: 0;
-}
-
-#root {
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
+  width: 0;
+  height: 0;
 }
 
 /* Smooth scrolling */
@@ -228,14 +241,22 @@ html, body {
   background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
 }
 
-/* Glassmorphism effect */
+/* Glassmorphism effect - Premium look */
 .glass {
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(148, 163, 184, 0.15);
 }
 
 [data-theme='dark'] .glass {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(30, 41, 59, 0.9);
   border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+/* Ensure no page-level scrolling */
+html, body, #root {
+  overflow: hidden !important;
+  height: 100vh !important;
+  width: 100vw !important;
+  position: fixed !important;
 }

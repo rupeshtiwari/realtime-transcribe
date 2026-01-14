@@ -67,8 +67,8 @@ export default function AnalysisPane() {
         ))}
       </div>
 
-      {/* Analysis Results - Custom scrollbar */}
-      <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[400px] scrollbar-hide">
+      {/* Analysis Results - No scrollbar, modern style */}
+      <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[400px] scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {analysisNotebook.length === 0 ? (
           <div className="text-center text-text-secondary py-8 text-sm">
             Select an analysis option above. All results will be saved here.

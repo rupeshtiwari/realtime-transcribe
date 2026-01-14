@@ -132,7 +132,8 @@ export default function MaterialsPage() {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="h-full w-full overflow-hidden flex flex-col">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
       <Link
         to="/"
         className="inline-flex items-center gap-2 text-primary hover:underline mb-6"

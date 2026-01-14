@@ -3,7 +3,8 @@ import { ArrowLeft, BookOpen } from 'lucide-react';
 
 export default function HelpPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="h-full w-full overflow-hidden flex flex-col">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
       <Link
         to="/"
         className="inline-flex items-center gap-2 text-primary hover:underline mb-6"

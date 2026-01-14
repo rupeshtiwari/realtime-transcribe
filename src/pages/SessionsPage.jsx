@@ -100,7 +100,8 @@ export default function SessionsPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div className="h-full w-full overflow-hidden flex flex-col">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
           <BookOpen className="w-8 h-8" />
@@ -227,6 +228,7 @@ export default function SessionsPage() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

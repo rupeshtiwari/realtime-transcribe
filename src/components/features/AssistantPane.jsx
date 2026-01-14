@@ -73,8 +73,8 @@ Please provide a helpful answer based on the conversation context. Be concise an
         Coach Assistant
       </h2>
 
-      {/* Messages - Custom scrollbar */}
-      <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[300px] space-y-3 mb-4 scrollbar-hide">
+      {/* Messages - No scrollbar, modern style */}
+      <div className="flex-1 overflow-y-auto min-h-[200px] max-h-[300px] space-y-3 mb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
         {assistantMessages.map((msg) => {
           const isUser = msg.role === 'user';
           const isSystem = msg.role === 'system';
