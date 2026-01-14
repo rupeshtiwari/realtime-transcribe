@@ -313,70 +313,162 @@ async function listAllMaterials(materialsPath) {
 // Find matching materials in folder
 async function findMatchingMaterials(materialsPath, role, coachingType, agenda) {
   const matches = [];
+  
+  // Check if folder exists
+  if (!await fs.pathExists(materialsPath)) {
+    console.warn(`Materials folder does not exist: ${materialsPath}`);
+    return [];
+  }
+  
   const searchTerms = `${role} ${coachingType} ${agenda || ""}`.toLowerCase();
+  console.log(`Searching materials with terms: ${searchTerms}`);
   
   async function scanDirectory(dir, relativePath = "") {
-    const entries = await fs.readdir(dir, { withFileTypes: true });
-    
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-      const relPath = path.join(relativePath, entry.name);
+    try {
+      const entries = await fs.readdir(dir, { withFileTypes: true });
       
-      if (entry.isDirectory()) {
-        await scanDirectory(fullPath, relPath);
-      } else {
-        const fileName = entry.name.toLowerCase();
-        let score = 0;
+      for (const entry of entries) {
+        const fullPath = path.join(dir, entry.name);
+        const relPath = path.join(relativePath, entry.name);
         
-        // Score based on filename matching
-        if (role && fileName.includes(role.toLowerCase())) score += 3;
-        if (coachingType && fileName.includes(coachingType.toLowerCase().replace("-", " "))) score += 3;
-        if (agenda && fileName.includes(agenda.toLowerCase().substring(0, 20))) score += 2;
-        
-        // Check folder names
-        const folderName = path.dirname(relPath).toLowerCase();
-        if (coachingType && folderName.includes(coachingType.toLowerCase().replace("-", " "))) score += 2;
-        if (role && folderName.includes(role.toLowerCase())) score += 2;
-        
-        // Common keywords
-        const keywords = {
-          "system design": ["system", "design", "architecture", "ifrail"],
-          "behavioral": ["behavior", "star", "leadership", "lp"],
-          "technical": ["coding", "algorithm", "technical"],
-          "data engineering": ["data", "engineering", "pipeline", "etl"],
-        };
-        
-        Object.entries(keywords).forEach(([key, terms]) => {
-          if (coachingType && coachingType.toLowerCase().includes(key)) {
-            terms.forEach(term => {
-              if (fileName.includes(term) || folderName.includes(term)) score += 1;
+        if (entry.isDirectory()) {
+          await scanDirectory(fullPath, relPath);
+        } else {
+          // Only process supported file types
+          const ext = path.extname(entry.name).toLowerCase();
+          const supportedExts = ['.pdf', '.txt', '.md', '.docx', '.doc'];
+          if (!supportedExts.includes(ext)) {
+            continue;
+          }
+          
+          const fileName = entry.name.toLowerCase();
+          const folderName = path.dirname(relPath).toLowerCase();
+          let score = 0;
+          
+          // Extract role keywords (e.g., "Senior Software Engineer" -> ["senior", "software", "engineer"])
+          const roleKeywords = role ? role.toLowerCase().split(/\s+/).filter(w => w.length > 3) : [];
+          
+          // Score based on filename matching
+          if (role) {
+            const roleLower = role.toLowerCase();
+            if (fileName.includes(roleLower)) score += 5;
+            // Check for partial matches
+            roleKeywords.forEach(keyword => {
+              if (fileName.includes(keyword)) score += 2;
             });
           }
-        });
-        
-        if (score > 0) {
-          matches.push({
-            path: relPath,
-            name: entry.name,
-            score,
-            fullPath: fullPath,
+          
+          // Score based on coaching type
+          if (coachingType) {
+            const typeLower = coachingType.toLowerCase().replace(/-/g, ' ');
+            const typeWords = typeLower.split(/\s+/);
+            
+            // Exact match
+            if (fileName.includes(typeLower) || folderName.includes(typeLower)) score += 5;
+            
+            // Partial matches
+            typeWords.forEach(word => {
+              if (word.length > 3) {
+                if (fileName.includes(word) || folderName.includes(word)) score += 2;
+              }
+            });
+          }
+          
+          // Score based on agenda keywords
+          if (agenda) {
+            const agendaLower = agenda.toLowerCase();
+            const agendaWords = agendaLower.split(/\s+/).filter(w => w.length > 4);
+            agendaWords.forEach(word => {
+              if (fileName.includes(word) || folderName.includes(word)) score += 1;
+            });
+          }
+          
+          // Check folder names for strong matches
+          if (coachingType) {
+            const typeLower = coachingType.toLowerCase().replace(/-/g, ' ');
+            if (folderName.includes(typeLower)) score += 4;
+          }
+          
+          // Common keywords mapping
+          const keywordMap = {
+            "system-design": ["system", "design", "architecture", "ifrail", "scalability", "distributed"],
+            "system design": ["system", "design", "architecture", "ifrail", "scalability", "distributed"],
+            "behavioral": ["behavior", "behaviour", "star", "leadership", "lp", "situation", "task", "action", "result"],
+            "technical": ["coding", "algorithm", "technical", "programming", "code", "leetcode"],
+            "mock-interview": ["mock", "interview", "practice"],
+            "resume-review": ["resume", "cv", "review"],
+          };
+          
+          // Check keyword matches
+          Object.entries(keywordMap).forEach(([key, terms]) => {
+            if (coachingType && coachingType.toLowerCase().includes(key.toLowerCase())) {
+              terms.forEach(term => {
+                if (fileName.includes(term) || folderName.includes(term)) score += 2;
+              });
+            }
           });
+          
+          // Role-specific folder matching (e.g., "Coding Interview" folder for technical roles)
+          if (role) {
+            const roleLower = role.toLowerCase();
+            if (roleLower.includes('engineer') || roleLower.includes('developer') || roleLower.includes('sde')) {
+              if (folderName.includes('coding') || folderName.includes('technical') || folderName.includes('algorithm')) {
+                score += 3;
+              }
+            }
+            if (roleLower.includes('architect') || roleLower.includes('sa') || roleLower.includes('solutions')) {
+              if (folderName.includes('system') || folderName.includes('design') || folderName.includes('architecture')) {
+                score += 3;
+              }
+            }
+            if (roleLower.includes('data') || roleLower.includes('de ')) {
+              if (folderName.includes('data') || folderName.includes('engineering')) {
+                score += 3;
+              }
+            }
+          }
+          
+          // If no specific matches but we have a coaching type, include materials from that type's folder
+          if (score === 0 && coachingType) {
+            const typeLower = coachingType.toLowerCase().replace(/-/g, ' ');
+            if (folderName.includes(typeLower) || fileName.includes(typeLower)) {
+              score = 1; // Low score but still include
+            }
+          }
+          
+          if (score > 0) {
+            matches.push({
+              path: relPath,
+              name: entry.name,
+              score,
+              fullPath: fullPath,
+            });
+          }
         }
       }
+    } catch (err) {
+      console.error(`Error scanning directory ${dir}:`, err);
     }
   }
   
   await scanDirectory(materialsPath);
   
+  console.log(`Found ${matches.length} potential matches`);
+  
   // Sort by score and return top matches
-  return matches
+  const sortedMatches = matches
     .sort((a, b) => b.score - a.score)
-    .slice(0, 10) // Top 10 matches
+    .slice(0, 15) // Top 15 matches (increased from 10)
     .map(m => ({
       name: m.name,
       path: m.path,
       relativePath: m.path,
+      score: m.score, // Include score for debugging
     }));
+  
+  console.log(`Returning ${sortedMatches.length} materials:`, sortedMatches.map(m => m.name));
+  
+  return sortedMatches;
 }
 
 // ============================================================================

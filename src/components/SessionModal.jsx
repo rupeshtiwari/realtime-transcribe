@@ -48,25 +48,32 @@ export default function SessionModal({ onClose, onStart }) {
         coachingAgenda: parsed.coachingAgenda || prev.coachingAgenda,
       }));
 
-      // Auto-select materials from folder
-      if (parsed.role || parsed.coachingType) {
-        try {
-          const data = await api.matchMaterials(parsed.role, parsed.coachingType, parsed.coachingAgenda);
-          setSelectedMaterials(data.materials.map((m) => m.path || m.name));
+      // Auto-select materials from folder - ALWAYS try to match, even if role/type is missing
+      try {
+        console.log('Matching materials with:', { role: parsed.role, coachingType: parsed.coachingType, agenda: parsed.coachingAgenda });
+        const data = await api.matchMaterials(parsed.role || '', parsed.coachingType || '', parsed.coachingAgenda || '');
+        console.log('Materials match result:', data);
+        
+        if (data.materials && data.materials.length > 0) {
+          const materialPaths = data.materials.map((m) => m.path || m.relativePath || m.name);
+          console.log('Setting selected materials:', materialPaths);
+          setSelectedMaterials(materialPaths);
           toast.dismiss(loadingToast);
           toast.success(`Email parsed! ${data.materials.length} materials auto-selected.`, {
             duration: 4000,
           });
-        } catch (err) {
-          console.warn('Error matching materials:', err);
+        } else {
           toast.dismiss(loadingToast);
-          toast.success('Email parsed! Please review and adjust the fields.', {
+          toast.success('Email parsed! No matching materials found. You can manually select materials.', {
             duration: 4000,
           });
         }
-      } else {
+      } catch (err) {
+        console.error('Error matching materials:', err);
         toast.dismiss(loadingToast);
-        toast.success('Email parsed! Please review and adjust the fields.');
+        toast.success('Email parsed! Please review and adjust the fields.', {
+          duration: 4000,
+        });
       }
     } catch (err) {
       toast.dismiss(loadingToast);
@@ -193,11 +200,16 @@ export default function SessionModal({ onClose, onStart }) {
             />
           </div>
 
-          {/* Selected Materials */}
-          {selectedMaterials.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium mb-2">Selected Materials</label>
-              <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg">
+          {/* Selected Materials - Always show this section */}
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Selected Materials
+              {selectedMaterials.length > 0 && (
+                <span className="text-xs text-gray-500 ml-2">({selectedMaterials.length} selected)</span>
+              )}
+            </label>
+            {selectedMaterials.length > 0 ? (
+              <div className="flex flex-wrap gap-2 p-3 bg-gray-50 rounded-lg min-h-[60px]">
                 {selectedMaterials.map((material, idx) => {
                   const fileName = material.includes('/') || material.includes('\\')
                     ? material.split(/[/\\]/).pop()
@@ -205,15 +217,31 @@ export default function SessionModal({ onClose, onStart }) {
                   return (
                     <span
                       key={idx}
-                      className="px-2 py-1 bg-primary/10 text-primary text-xs rounded"
+                      className="px-2 py-1 bg-primary/10 text-primary text-xs rounded flex items-center gap-1"
+                      title={material}
                     >
                       {fileName}
+                      <button
+                        onClick={() => {
+                          const newMaterials = selectedMaterials.filter((_, i) => i !== idx);
+                          setSelectedMaterials(newMaterials);
+                          toast.success('Material removed');
+                        }}
+                        className="ml-1 text-primary/70 hover:text-primary"
+                        title="Remove"
+                      >
+                        ×
+                      </button>
                     </span>
                   );
                 })}
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="p-3 bg-gray-50 rounded-lg text-sm text-gray-500 italic min-h-[60px] flex items-center">
+                No materials selected. Materials will be auto-selected when you parse an email.
+              </div>
+            )}
+          </div>
 
           {/* Session Name */}
           <div>
