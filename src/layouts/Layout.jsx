@@ -3,12 +3,13 @@ import { useSessionStore } from '../store/useSessionStore';
 import { BookOpen, HelpCircle, FolderOpen } from 'lucide-react';
 import { useThemeMode } from '../context/ThemeContext';
 import ThemeToggle from '../components/ThemeToggle';
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const { currentSession, transcriptMessages } = useSessionStore();
-  const { actualMode } = useThemeMode();
+  const theme = useTheme();
 
   return (
     <Box
@@ -31,8 +32,8 @@ export default function Layout({ children }) {
           boxShadow: 1,
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+        <Box sx={{ maxWidth: '1280px', mx: 'auto', px: { xs: 2, sm: 3, lg: 4 } }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 64 }}>
             {/* Logo & Title */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
@@ -58,13 +59,13 @@ export default function Layout({ children }) {
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   textDecoration: 'none',
-                  color: location.pathname === '/help' ? 'primary.main' : 'text.secondary',
-                  backgroundColor: location.pathname === '/help' ? 'primary.light' : 'transparent',
+                  color: location.pathname === '/help' ? theme.palette.primary.main : theme.palette.text.secondary,
+                  backgroundColor: location.pathname === '/help' ? theme.palette.primary.main + '1A' : 'transparent',
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
                   if (location.pathname !== '/help') {
-                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
+                    e.currentTarget.style.backgroundColor = theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -87,13 +88,13 @@ export default function Layout({ children }) {
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   textDecoration: 'none',
-                  color: location.pathname === '/sessions' ? 'primary.main' : 'text.secondary',
-                  backgroundColor: location.pathname === '/sessions' ? 'primary.light' : 'transparent',
+                  color: location.pathname === '/sessions' ? theme.palette.primary.main : theme.palette.text.secondary,
+                  backgroundColor: location.pathname === '/sessions' ? theme.palette.primary.main + '1A' : 'transparent',
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
                   if (location.pathname !== '/sessions') {
-                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
+                    e.currentTarget.style.backgroundColor = theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -116,13 +117,13 @@ export default function Layout({ children }) {
                   fontSize: '0.875rem',
                   fontWeight: 500,
                   textDecoration: 'none',
-                  color: location.pathname === '/materials' ? 'primary.main' : 'text.secondary',
-                  backgroundColor: location.pathname === '/materials' ? 'primary.light' : 'transparent',
+                  color: location.pathname === '/materials' ? theme.palette.primary.main : theme.palette.text.secondary,
+                  backgroundColor: location.pathname === '/materials' ? theme.palette.primary.main + '1A' : 'transparent',
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
                   if (location.pathname !== '/materials') {
-                    e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.04)';
+                    e.currentTarget.style.backgroundColor = theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.04)';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -141,16 +142,24 @@ export default function Layout({ children }) {
               <ThemeToggle />
               {currentSession && (
                 <>
-                  <button
-                    className="btn btn--small"
+                  <Button
+                    size="small"
+                    variant="outlined"
                     disabled={!currentSession || transcriptMessages.length === 0}
                     title="Save to Google Drive"
+                    sx={{ minWidth: 'auto', px: 1.5 }}
                   >
                     📄 Drive
-                  </button>
-                  <button className="btn btn--small" disabled={!currentSession} title="Export session">
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={!currentSession}
+                    title="Export session"
+                    sx={{ minWidth: 'auto', px: 1.5 }}
+                  >
                     💾 Export
-                  </button>
+                  </Button>
                 </>
               )}
             </Box>
@@ -162,7 +171,7 @@ export default function Layout({ children }) {
       <Box
         component="main"
         sx={{
-          height: 'calc(100vh - 4rem)',
+          height: 'calc(100vh - 64px)',
           overflow: 'hidden',
         }}
       >
