@@ -1,7 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useSessionStore } from '../store/useSessionStore';
 import { BookOpen, HelpCircle, FolderOpen } from 'lucide-react';
-import { useThemeMode } from '../context/ThemeContext';
 import ThemeToggle from '../components/common/ThemeToggle';
 import { Box, Button } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
@@ -24,25 +23,19 @@ export default function Layout({ children }) {
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
+        background: theme.palette.mode === 'dark'
+          ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
+          : 'linear-gradient(135deg, #fafbfc 0%, #f1f5f9 50%, #fafbfc 100%)',
+        backgroundSize: '200% 200%',
+        animation: 'gradientShift 15s ease infinite',
+        '@keyframes gradientShift': {
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' },
+        },
       }}
     >
-      {/* Modern gradient background overlay */}
-      <Box
-        sx={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: theme.palette.mode === 'dark'
-            ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)'
-            : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%)',
-          zIndex: 0,
-          pointerEvents: 'none',
-        }}
-      />
-
-      {/* Header - Modern glassmorphism like Notion */}
+      {/* Premium Header with Glassmorphism */}
       <Box
         component="header"
         sx={{
@@ -50,20 +43,20 @@ export default function Layout({ children }) {
           top: 0,
           zIndex: 50,
           background: theme.palette.mode === 'dark'
-            ? 'rgba(30, 41, 59, 0.85)'
-            : 'rgba(255, 255, 255, 0.85)',
+            ? 'rgba(30, 41, 59, 0.9)'
+            : 'rgba(255, 255, 255, 0.9)',
           backdropFilter: 'blur(20px) saturate(180%)',
           borderBottom: '1px solid',
           borderColor: 'divider',
           boxShadow: theme.palette.mode === 'dark'
-            ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
-            : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+            ? '0 4px 20px rgba(0, 0, 0, 0.4)'
+            : '0 4px 20px rgba(0, 0, 0, 0.08)',
           flexShrink: 0,
         }}
       >
         <Box sx={{ maxWidth: '1600px', mx: 'auto', px: { xs: 3, sm: 4, lg: 6 } }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
-            {/* Logo & Title - Modern typography */}
+            {/* Logo & Title - Premium Typography */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
               <Link
                 to="/"
@@ -78,12 +71,12 @@ export default function Layout({ children }) {
                   sx={{
                     fontSize: '0.75rem',
                     textTransform: 'uppercase',
-                    letterSpacing: '0.1em',
+                    letterSpacing: '0.15em',
                     fontWeight: 700,
-                    color: 'primary.main',
                     background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
                   }}
                 >
                   Coach Copilot
@@ -101,7 +94,7 @@ export default function Layout({ children }) {
               </Link>
             </Box>
 
-            {/* Navigation - Modern pill buttons like Linear */}
+            {/* Navigation - Premium Pill Buttons */}
             <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               {[
                 { path: '/help', icon: HelpCircle, label: 'Help' },
@@ -150,9 +143,11 @@ export default function Layout({ children }) {
               })}
             </Box>
 
-            {/* Action Buttons */}
+            {/* Action Buttons & Theme Toggle - Prominently Displayed */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              {/* Theme Toggle - Prominent */}
               <ThemeToggle />
+              
               {currentSession && (
                 <>
                   <Button
@@ -163,10 +158,14 @@ export default function Layout({ children }) {
                     sx={{
                       minWidth: 'auto',
                       px: 2,
-                      borderRadius: '10px',
+                      borderRadius: '12px',
                       borderColor: 'divider',
                       textTransform: 'none',
                       fontWeight: 500,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        transform: 'translateY(-1px)',
+                      },
                     }}
                   >
                     📄 Drive
@@ -179,10 +178,14 @@ export default function Layout({ children }) {
                     sx={{
                       minWidth: 'auto',
                       px: 2,
-                      borderRadius: '10px',
+                      borderRadius: '12px',
                       borderColor: 'divider',
                       textTransform: 'none',
                       fontWeight: 500,
+                      transition: 'all 0.2s ease',
+                      '&:hover': {
+                        transform: 'translateY(-1px)',
+                      },
                     }}
                   >
                     💾 Export
@@ -194,7 +197,7 @@ export default function Layout({ children }) {
         </Box>
       </Box>
 
-      {/* Main Content - Fixed height, absolutely no scrollbars */}
+      {/* Main Content - Fixed height, no scrollbars */}
       <Box
         component="main"
         sx={{

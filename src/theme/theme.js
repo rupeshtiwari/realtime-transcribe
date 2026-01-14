@@ -1,27 +1,27 @@
 import { createTheme } from '@mui/material/styles';
 
-// Modern Light Theme (Daylight)
+// Premium Light Theme - Inspired by Linear/Notion
 export const lightTheme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#6366f1', // Indigo - modern, professional
+      main: '#6366f1',
       light: '#818cf8',
       dark: '#4f46e5',
       contrastText: '#ffffff',
     },
     secondary: {
-      main: '#8b5cf6', // Purple accent
+      main: '#8b5cf6',
       light: '#a78bfa',
       dark: '#7c3aed',
     },
     background: {
-      default: '#f8fafc', // Very light gray-blue
+      default: '#fafbfc',
       paper: '#ffffff',
     },
     text: {
-      primary: '#0f172a', // Slate 900
-      secondary: '#64748b', // Slate 500
+      primary: '#0f172a',
+      secondary: '#64748b',
     },
     divider: 'rgba(148, 163, 184, 0.2)',
     success: {
@@ -30,63 +30,48 @@ export const lightTheme = createTheme({
     },
     error: {
       main: '#ef4444',
-      light: '#f87171',
+    },
+    warning: {
+      main: '#f59e0b',
+    },
+    info: {
+      main: '#3b82f6',
     },
   },
   shape: {
     borderRadius: 16,
   },
   typography: {
-    fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
     h1: {
       fontWeight: 700,
-      fontSize: '2rem',
+      letterSpacing: '-0.025em',
     },
     h2: {
+      fontWeight: 700,
+      letterSpacing: '-0.025em',
+    },
+    h3: {
       fontWeight: 600,
-      fontSize: '1.5rem',
+      letterSpacing: '-0.02em',
     },
     button: {
       textTransform: 'none',
       fontWeight: 600,
-      letterSpacing: '0.025em',
+      letterSpacing: '0.01em',
     },
   },
-  shadows: [
-    'none',
-    '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-    '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
-    '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
-    '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-    '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-  ],
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
           borderRadius: 12,
-          padding: '10px 24px',
+          padding: '12px 24px',
           minHeight: 44,
-          boxShadow: 'none',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
+            transform: 'translateY(-1px)',
             boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
           },
         },
@@ -102,10 +87,13 @@ export const lightTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 20,
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
           border: '1px solid rgba(148, 163, 184, 0.1)',
-          background: 'rgba(255, 255, 255, 0.8)',
-          backdropFilter: 'blur(10px)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+            transform: 'translateY(-2px)',
+          },
         },
       },
     },
@@ -119,15 +107,15 @@ export const lightTheme = createTheme({
   },
 });
 
-// Modern Dark Theme (Dim)
+// Premium Dark Theme - Modern and sleek
 export const darkTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#818cf8', // Lighter indigo for dark mode
+      main: '#818cf8',
       light: '#a5b4fc',
       dark: '#6366f1',
-      contrastText: '#0f172a',
+      contrastText: '#ffffff',
     },
     secondary: {
       main: '#a78bfa',
@@ -135,80 +123,63 @@ export const darkTheme = createTheme({
       dark: '#8b5cf6',
     },
     background: {
-      default: '#0f172a', // Slate 900
-      paper: '#1e293b', // Slate 800
+      default: '#0f172a',
+      paper: '#1e293b',
     },
     text: {
-      primary: '#f1f5f9', // Slate 100
-      secondary: '#94a3b8', // Slate 400
+      primary: '#f1f5f9',
+      secondary: '#94a3b8',
     },
-    divider: 'rgba(148, 163, 184, 0.2)',
+    divider: 'rgba(148, 163, 184, 0.15)',
     success: {
-      main: '#10b981',
-      light: '#34d399',
+      main: '#34d399',
+      light: '#6ee7b7',
     },
     error: {
-      main: '#ef4444',
-      light: '#f87171',
+      main: '#f87171',
+    },
+    warning: {
+      main: '#fbbf24',
+    },
+    info: {
+      main: '#60a5fa',
     },
   },
   shape: {
     borderRadius: 16,
   },
   typography: {
-    fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontFamily: '"Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif',
     h1: {
       fontWeight: 700,
-      fontSize: '2rem',
+      letterSpacing: '-0.025em',
     },
     h2: {
+      fontWeight: 700,
+      letterSpacing: '-0.025em',
+    },
+    h3: {
       fontWeight: 600,
-      fontSize: '1.5rem',
+      letterSpacing: '-0.02em',
     },
     button: {
       textTransform: 'none',
       fontWeight: 600,
-      letterSpacing: '0.025em',
+      letterSpacing: '0.01em',
     },
   },
-  shadows: [
-    'none',
-    '0 1px 2px 0 rgba(0, 0, 0, 0.3)',
-    '0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3)',
-    '0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3)',
-    '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
-    '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-    '0 25px 50px -12px rgba(0, 0, 0, 0.6)',
-  ],
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
           borderRadius: 12,
-          padding: '10px 24px',
+          padding: '12px 24px',
           minHeight: 44,
-          boxShadow: 'none',
+          boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.3)',
+          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
           '&:hover': {
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+            transform: 'translateY(-1px)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.4)',
           },
         },
         contained: {
@@ -223,10 +194,13 @@ export const darkTheme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 20,
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2)',
           border: '1px solid rgba(148, 163, 184, 0.1)',
-          background: 'rgba(30, 41, 59, 0.8)',
-          backdropFilter: 'blur(10px)',
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3)',
+            transform: 'translateY(-2px)',
+          },
         },
       },
     },
