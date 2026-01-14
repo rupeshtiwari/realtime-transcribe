@@ -1,5 +1,5 @@
 import { useEffect, useRef, useMemo, useCallback, useState } from 'react';
-import { useSessionStore } from '../store/useSessionStore';
+import { useSessionStore } from '../../store/useSessionStore';
 import { Mic, MicOff, Play, Square } from 'lucide-react';
 import { clsx } from 'clsx';
 import { FixedSizeList as List } from 'react-window';

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSessionStore } from '../store/useSessionStore';
-import { api } from '../services/api';
+import { useSessionStore } from '../../store/useSessionStore';
+import { api } from '../../services/api';
 import { Bot, Send, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 export default function AssistantPane() {
   const [input, setInput] = useState('');

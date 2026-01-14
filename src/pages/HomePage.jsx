@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useSessionStore } from '../store/useSessionStore';
 import { useRealtimeTranscription } from '../hooks/useRealtimeTranscription';
-import SessionModal from '../components/SessionModal';
-import TranscriptPane from '../components/TranscriptPane';
-import AnalysisPane from '../components/AnalysisPane';
-import AssistantPane from '../components/AssistantPane';
-import SuggestionsPane from '../components/SuggestionsPane';
+import {
+  SessionModal,
+  TranscriptPane,
+  AnalysisPane,
+  AssistantPane,
+  SuggestionsPane,
+} from '../components/features';
 
 export default function HomePage() {
   const [showSessionModal, setShowSessionModal] = useState(false);
