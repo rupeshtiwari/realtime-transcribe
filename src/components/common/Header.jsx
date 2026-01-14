@@ -23,7 +23,7 @@ function Header({ sessionInfo, onStart, onStop, isRecording, currentSession, tra
 
   const handleSaveToDrive = async () => {
     if (!currentSession || transcriptMessages.length === 0) {
-      alert('No session or transcript to save');
+      toast.error('No session or transcript to save');
       return;
     }
     // Google Drive save logic

@@ -35,174 +35,241 @@ export default function Layout({ children }) {
         },
       }}
     >
-      {/* Premium Header with Glassmorphism */}
-      <Box
-        component="header"
-        sx={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 50,
-          background: theme.palette.mode === 'dark'
-            ? 'rgba(30, 41, 59, 0.9)'
-            : 'rgba(255, 255, 255, 0.9)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          boxShadow: theme.palette.mode === 'dark'
-            ? '0 4px 20px rgba(0, 0, 0, 0.4)'
-            : '0 4px 20px rgba(0, 0, 0, 0.08)',
-          flexShrink: 0,
-        }}
-      >
-        <Box sx={{ maxWidth: '1600px', mx: 'auto', px: { xs: 3, sm: 4, lg: 6 } }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
-            {/* Logo & Title - Premium Typography */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+      {/* Header for Home Page - Navigation + Theme Toggle */}
+      {location.pathname === '/' && (
+        <Box
+          component="header"
+          sx={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            background: theme.palette.mode === 'dark'
+              ? 'rgba(30, 41, 59, 0.9)'
+              : 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+            flexShrink: 0,
+            height: 64,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            px: 3,
+          }}
+        >
+          {/* Navigation */}
+          <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {[
+              { path: '/sessions', icon: BookOpen, label: 'Sessions' },
+              { path: '/materials', icon: FolderOpen, label: 'Materials' },
+              { path: '/help', icon: HelpCircle, label: 'Help' },
+            ].map(({ path, icon: Icon, label }) => (
               <Link
-                to="/"
+                key={path}
+                to={path}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12,
+                  gap: 8,
+                  padding: '8px 14px',
+                  borderRadius: '10px',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
                   textDecoration: 'none',
+                  color: theme.palette.text.secondary,
+                  background: 'transparent',
+                  transition: 'all 0.2s ease',
+                  border: '1px solid transparent',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background =
+                    theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
                 }}
               >
-                <Box
-                  sx={{
-                    fontSize: '0.75rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.15em',
-                    fontWeight: 700,
-                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    backgroundClip: 'text',
-                  }}
-                >
-                  Coach Copilot
-                </Box>
-                <Box
-                  sx={{
-                    fontSize: '1.125rem',
-                    fontWeight: 600,
-                    color: 'text.primary',
-                    letterSpacing: '-0.025em',
-                  }}
-                >
-                  {currentSession?.name || 'No active session'}
-                </Box>
+                <Icon size={16} />
+                {label}
               </Link>
-            </Box>
-
-            {/* Navigation - Premium Pill Buttons */}
-            <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              {[
-                { path: '/help', icon: HelpCircle, label: 'Help' },
-                { path: '/sessions', icon: BookOpen, label: 'Sessions' },
-                { path: '/materials', icon: FolderOpen, label: 'Materials' },
-              ].map(({ path, icon: Icon, label }) => {
-                const isActive = location.pathname === path;
-                return (
-                  <Link
-                    key={path}
-                    to={path}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      padding: '10px 16px',
-                      borderRadius: '12px',
-                      fontSize: '0.875rem',
-                      fontWeight: 500,
-                      textDecoration: 'none',
-                      color: isActive ? theme.palette.primary.main : theme.palette.text.secondary,
-                      background: isActive
-                        ? theme.palette.mode === 'dark'
-                          ? 'rgba(129, 140, 248, 0.2)'
-                          : 'rgba(99, 102, 241, 0.1)'
-                        : 'transparent',
-                      transition: 'all 0.2s ease',
-                      border: isActive ? `1px solid ${theme.palette.primary.main}40` : '1px solid transparent',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background =
-                          theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!isActive) {
-                        e.currentTarget.style.background = 'transparent';
-                      }
-                    }}
-                  >
-                    <Icon size={18} />
-                    {label}
-                  </Link>
-                );
-              })}
-            </Box>
-
-            {/* Action Buttons & Theme Toggle - Prominently Displayed */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-              {/* Theme Toggle - Prominent */}
-              <ThemeToggle />
-              
-              {currentSession && (
-                <>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    disabled={!currentSession || transcriptMessages.length === 0}
-                    title="Save to Google Drive"
+            ))}
+          </Box>
+          
+          {/* Theme Toggle */}
+          <ThemeToggle />
+        </Box>
+      )}
+      
+      {/* Full Header for other pages */}
+      {location.pathname !== '/' && (
+        <Box
+          component="header"
+          sx={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 50,
+            background: theme.palette.mode === 'dark'
+              ? 'rgba(30, 41, 59, 0.9)'
+              : 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'blur(20px) saturate(180%)',
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+            boxShadow: theme.palette.mode === 'dark'
+              ? '0 4px 20px rgba(0, 0, 0, 0.4)'
+              : '0 4px 20px rgba(0, 0, 0, 0.08)',
+            flexShrink: 0,
+          }}
+        >
+          <Box sx={{ maxWidth: '1600px', mx: 'auto', px: { xs: 3, sm: 4, lg: 6 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 72 }}>
+              {/* Logo & Title - Premium Typography */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <Link
+                  to="/"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Box
                     sx={{
-                      minWidth: 'auto',
-                      px: 2,
-                      borderRadius: '12px',
-                      borderColor: 'divider',
-                      textTransform: 'none',
-                      fontWeight: 500,
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        transform: 'translateY(-1px)',
-                      },
+                      fontSize: '0.75rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.15em',
+                      fontWeight: 700,
+                      background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
                     }}
                   >
-                    📄 Drive
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    disabled={!currentSession}
-                    title="Export session"
+                    Coach Copilot
+                  </Box>
+                  <Box
                     sx={{
-                      minWidth: 'auto',
-                      px: 2,
-                      borderRadius: '12px',
-                      borderColor: 'divider',
-                      textTransform: 'none',
-                      fontWeight: 500,
-                      transition: 'all 0.2s ease',
-                      '&:hover': {
-                        transform: 'translateY(-1px)',
-                      },
+                      fontSize: '1.125rem',
+                      fontWeight: 600,
+                      color: 'text.primary',
+                      letterSpacing: '-0.025em',
                     }}
                   >
-                    💾 Export
-                  </Button>
-                </>
-              )}
+                    {currentSession?.name || 'No active session'}
+                  </Box>
+                </Link>
+              </Box>
+
+              {/* Navigation - Premium Pill Buttons */}
+              <Box component="nav" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                {[
+                  { path: '/help', icon: HelpCircle, label: 'Help' },
+                  { path: '/sessions', icon: BookOpen, label: 'Sessions' },
+                  { path: '/materials', icon: FolderOpen, label: 'Materials' },
+                ].map(({ path, icon: Icon, label }) => {
+                  const isActive = location.pathname === path;
+                  return (
+                    <Link
+                      key={path}
+                      to={path}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        padding: '10px 16px',
+                        borderRadius: '12px',
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        textDecoration: 'none',
+                        color: isActive ? theme.palette.primary.main : theme.palette.text.secondary,
+                        background: isActive
+                          ? theme.palette.mode === 'dark'
+                            ? 'rgba(129, 140, 248, 0.2)'
+                            : 'rgba(99, 102, 241, 0.1)'
+                          : 'transparent',
+                        transition: 'all 0.2s ease',
+                        border: isActive ? `1px solid ${theme.palette.primary.main}40` : '1px solid transparent',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background =
+                            theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'transparent';
+                        }
+                      }}
+                    >
+                      <Icon size={18} />
+                      {label}
+                    </Link>
+                  );
+                })}
+              </Box>
+
+              {/* Action Buttons & Theme Toggle - Prominently Displayed */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                {/* Theme Toggle - Prominent */}
+                <ThemeToggle />
+                
+                {currentSession && (
+                  <>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      disabled={!currentSession || transcriptMessages.length === 0}
+                      title="Save to Google Drive"
+                      sx={{
+                        minWidth: 'auto',
+                        px: 2,
+                        borderRadius: '12px',
+                        borderColor: 'divider',
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          transform: 'translateY(-1px)',
+                        },
+                      }}
+                    >
+                      📄 Drive
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      disabled={!currentSession}
+                      title="Export session"
+                      sx={{
+                        minWidth: 'auto',
+                        px: 2,
+                        borderRadius: '12px',
+                        borderColor: 'divider',
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          transform: 'translateY(-1px)',
+                        },
+                      }}
+                    >
+                      💾 Export
+                    </Button>
+                  </>
+                )}
+              </Box>
             </Box>
           </Box>
         </Box>
-      </Box>
+      )}
 
       {/* Main Content - Fixed height, no scrollbars */}
       <Box
         component="main"
         sx={{
           flex: 1,
-          height: 'calc(100vh - 72px)',
+          minHeight: 0,
           overflow: 'hidden',
           position: 'relative',
           zIndex: 1,

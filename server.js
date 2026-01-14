@@ -8,7 +8,7 @@ const multer = require("multer");
 const app = express();
 app.use(express.json({ limit: "10mb" })); // Increased for file uploads
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const REALTIME_MODEL = process.env.REALTIME_MODEL || "gpt-4o-realtime-preview";
 const SUGGESTION_MODEL = process.env.SUGGESTION_MODEL || "gpt-4o-mini";
@@ -52,12 +52,19 @@ async function initializeAssistant() {
       body: JSON.stringify({
         name: "Coach Copilot Assistant",
         instructions: `You are an expert coaching assistant with access to comprehensive mentoring materials including:
-- System Design Interview frameworks and rubrics
+- System Design Interview frameworks and rubrics (IFRAILST, IFRAIST, etc.)
 - Behavioral interview guides and STAR method templates
 - Coding interview questions and grading rubrics
-- Data Engineering interview frameworks
+- Data Engineering interview frameworks (CAMPERSO, etc.)
 - TPM interview materials
 - Role-specific preparation guides (SA, SDE, DE, TPM, etc.)
+- Books and reference materials (Designing Data-Intensive Applications, System Design Interview guides, etc.)
+
+IMPORTANT: You have access to these materials through file_search. When answering questions or providing analysis:
+1. ALWAYS search the materials first using file_search to find relevant frameworks, rubrics, and guides
+2. Reference specific frameworks, rubrics, and examples from the materials
+3. Use the materials to provide accurate, context-aware coaching advice
+4. Cite specific materials when relevant (e.g., "According to the IFRAILST framework..." or "Based on the CAMPERSO framework...")
 
 Use these materials to provide accurate, context-aware coaching advice. Reference specific frameworks and rubrics when relevant.`,
         model: SUGGESTION_MODEL,
@@ -639,7 +646,7 @@ app.post("/api/analysis/followup", async (req, res) => {
     const result = await runAnalysisWithAssistant(
       transcript,
       "Follow-up Questions",
-      "Analyze the conversation transcript and provide 5-7 strategic follow-up questions the coach should ask. Format as JSON: { followupQuestions: [array of questions] }"
+      "Analyze the conversation transcript and provide 5-7 strategic follow-up questions the coach should ask. Use the mentoring materials (frameworks, rubrics, interview guides) to inform your questions. Format as JSON: { followupQuestions: [array of questions] }"
     );
     res.json({ result: result.followupQuestions || result });
   } catch (err) {
@@ -657,7 +664,7 @@ app.post("/api/analysis/revised-story", async (req, res) => {
     const result = await runAnalysisWithAssistant(
       transcript,
       "Revised Story",
-      "Analyze the conversation and provide a revised version of the candidate's story with improvements. Format as JSON: { originalSummary: string, revisedStory: string, improvements: [array] }"
+      "Analyze the conversation and provide a revised version of the candidate's story with improvements. Use STAR method templates and behavioral interview guides from the materials. Format as JSON: { originalSummary: string, revisedStory: string, improvements: [array] }"
     );
     res.json({ result });
   } catch (err) {
@@ -675,7 +682,7 @@ app.post("/api/analysis/feedback-summary", async (req, res) => {
     const result = await runAnalysisWithAssistant(
       transcript,
       "Feedback Summary",
-      "Analyze the conversation and provide comprehensive feedback. Format as JSON: { strengths: [array], weaknesses: [array], notGood: [array], improvements: [array] }"
+      "Analyze the conversation and provide comprehensive feedback. Use the grading rubrics, frameworks, and interview guides from the materials to provide accurate feedback. Format as JSON: { strengths: [array], weaknesses: [array], notGood: [array], improvements: [array] }"
     );
     res.json({ result });
   } catch (err) {
@@ -693,7 +700,7 @@ app.post("/api/analysis/interview-prep", async (req, res) => {
     const result = await runAnalysisWithAssistant(
       transcript,
       "Interview Prep",
-      "Provide interview preparation feedback. Format as JSON: { starMethodFeedback: string, impactStatements: [array], roleSpecificTips: [array], raiseTheBar: string }"
+      "Provide interview preparation feedback. Use the role-specific preparation guides, frameworks, and rubrics from the materials. Format as JSON: { starMethodFeedback: string, impactStatements: [array], roleSpecificTips: [array], raiseTheBar: string }"
     );
     res.json({ result });
   } catch (err) {
@@ -734,6 +741,32 @@ app.post("/api/suggestions", async (req, res) => {
   }
 
   try {
+    // Use Assistant API with materials if available, otherwise fallback to Chat Completions
+    // Ensure assistant is initialized
+    if (!ASSISTANT_ID) {
+      ASSISTANT_ID = await initializeAssistant();
+    }
+    
+    if (ASSISTANT_ID) {
+        const result = await runAnalysisWithAssistant(
+          transcript,
+          "Suggestions",
+          "Based on this transcript, provide coaching reply suggestions. Use the mentoring materials (frameworks, rubrics, interview guides) to inform your suggestions. Format as JSON: { bestReply: string, alternate1: string, alternate2: string, nextQuestion: string }"
+        );
+        
+        // Ensure we have the right format
+        if (result.bestReply || result.alternate1) {
+          return res.json(result);
+        }
+        // If result is nested, extract it
+        if (result.result) {
+          return res.json(result.result);
+        }
+        return res.json(result);
+      }
+    }
+
+    // Fallback to Chat Completions
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -787,7 +820,7 @@ app.post("/api/assistant", async (req, res) => {
       const result = await runAnalysisWithAssistant(
         transcript || "",
         "Assistant Chat",
-        `Answer this question based on the session context and transcript:\n\nContext: ${context || ""}\n\nQuestion: ${question}\n\nBe concise and actionable.`
+        `Answer this question based on the session context and transcript. Use the mentoring materials (frameworks, rubrics, interview guides, books) to provide accurate, context-aware answers. Search the materials first if the question relates to frameworks, rubrics, or interview strategies.\n\nContext: ${context || ""}\n\nQuestion: ${question}\n\nBe concise and actionable.`
       );
       return res.json({ answer: result.result || result.answer || JSON.stringify(result) });
     }

@@ -5,13 +5,16 @@ import path from 'path';
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
+    port: 8080,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://localhost:3001',
         changeOrigin: true,
       },
     },
+  },
+  optimizeDeps: {
+    include: ['react-window'],
   },
   build: {
     outDir: 'dist',

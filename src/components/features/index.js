@@ -4,3 +4,4 @@ export { default as SuggestionsPane } from './SuggestionsPane';
 export { default as AnalysisPane } from './AnalysisPane';
 export { default as AssistantPane } from './AssistantPane';
 export { default as SessionModal } from './SessionModal';
+export { default as FileExplorer } from './FileExplorer';
