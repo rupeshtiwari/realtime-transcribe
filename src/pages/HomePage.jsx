@@ -40,7 +40,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="h-full w-full overflow-hidden">
+    <div className="h-full w-full overflow-hidden relative">
       {/* Session Modal */}
       {showSessionModal && (
         <SessionModal
