@@ -263,6 +263,7 @@ export default function MaterialsPage() {
           </ul>
         </div>
       </div>
+      </div>
     </div>
   );
 }
